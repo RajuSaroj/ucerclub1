@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Eligibility and ID Generator</title>
+    <style>
+        body {
+            background-color: aliceblue;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        #whatsappIcon {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        #whatsappIcon img {
+            width: 60px;
+            height: 60px;
+        }
+
+        #joinGroupLink {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #joinGroupLink a {
+            font-size: 16px;
+            text-decoration: none;
+            color: #0074cc;
+            font-weight: bold;
+        }
+
+        #generatedIdCard {
+            background-color: burlywood;
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            position: relative;
+            color: #000;
+            height: 500px;
+            border-radius: 10px;
+            margin: 0 auto;
+        }
+
+        #generatedIdCard .content {
+            padding: 20px;
+            border-radius: 10px;
+            color: #000;
+        }
+
+        #profilePicture {
+            display: block;
+            margin: 0 auto 10px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
+        #generatedIdCard .cornerLogo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        #signatureBox {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #000;
+            height: 50px;
+            width: 90%;
+            text-align: center;
+            font-size: 14px;
+            line-height: 50px;
+        }
+
+        /* Media Query for Smaller Devices */
+        @media (max-width: 480px) {
+            #generatedIdCard {
+                width: 90%;
+            }
+            #whatsappIcon img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter Your Details</h2>
+    <form id="studentForm">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" required><br><br>
+
+        <label for="year">Year:</label>
+        <select id="year">
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+        </select><br><br>
+
+        <label for="cgpa">CGPA:</label>
+        <input type="number" id="cgpa" step="0.01" min="0" max="10" required><br><br>
+
+        <label for="rollNumber">Roll Number:</label>
+        <input type="text" id="rollNumber" required><br><br>
+
+        <label for="collegeId">College ID:</label>
+        <input type="text" id="collegeId" required><br><br>
+
+        <label for="profilePic">Upload Profile Picture:</label>
+        <input type="file" id="profilePic" accept="image/*" required><br><br>
+
+        <label for="collegeLogo">Upload College Logo:</label>
+        <input type="file" id="collegeLogo" accept="image/*" required><br><br>
+
+        <button type="button" onclick="checkEligibility()">Submit</button>
+    </form>
+
+    <div id="whatsappIcon">
+        <img id="whatsappImage" src="" alt="WhatsApp Icon">
+        <div id="joinGroupLink">
+            <a id="whatsappLink" href="#" target="_blank">Join Group</a>
+        </div>
+    </div>
+
+    <div id="generatedIdCard">
+        <img id="profilePicture" class="profilePic" alt="Profile Picture">
+        <img id="collegeLogoImage" class="cornerLogo" alt="College Logo">
+        <div class="content">
+            <h3>Student ID Card</h3>
+            <p>Name: <span id="nameDisplay"></span></p>
+            <p>Year: <span id="yearDisplay"></span></p>
+            <p>CGPA: <span id="cgpaDisplay"></span></p>
+            <p>College ID: <span id="collegeIdDisplay"></span></p>
+            <p><strong>Team Leader: Raju Saroj</strong></p>
+            <p>Club ID: <span id="clubIdDisplay"></span></p>
+            <p><strong>Principal's Signature:</strong> ____________________</p>
+        </div>
+    </div>
+
+    <button id="downloadId" onclick="downloadIDCard()">Download ID Card</button>
+
+    <!-- Include the latest version of html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        function checkEligibility() {
+            const name = document.getElementById("name").value;
+            const year = document.getElementById("year").value;
+            const cgpa = parseFloat(document.getElementById("cgpa").value);
+            const rollNumber = document.getElementById("rollNumber").value;
+            const collegeId = document.getElementById("collegeId").value;
+            const profilePic = document.getElementById("profilePic").files[0];
+            const collegeLogo = document.getElementById("collegeLogo").files[0];
+
+            generateIDCard(name, year, cgpa, rollNumber, collegeId, profilePic, collegeLogo);
+        }
+
+        function generateIDCard(name, year, cgpa, rollNumber, collegeId, profilePic, collegeLogo) {
+            document.getElementById("generatedIdCard").style.display = "block";
+            document.getElementById("nameDisplay").innerText = name;
+            document.getElementById("yearDisplay").innerText = year;
+            document.getElementById("cgpaDisplay").innerText = cgpa;
+            document.getElementById("collegeIdDisplay").innerText = collegeId;
+            document.getElementById("clubIdDisplay").innerText = generateClubID(rollNumber);
+
+            // Eligibility conditions
+            let link = "";
+            if (year == "1" && cgpa <= 5) {
+                link = "https://chat.whatsapp.com/DDnS7n5Y3X1BMazGRFXfSG";
+            } else if (year == "1" && cgpa <= 7.2) {
+                link = "https://chat.whatsapp.com/DTldHAyhHFEEo0fKdpoFyM";
+            } else if (year == "1" && cgpa > 7.2) {
+                link = "https://chat.whatsapp.com/HsQvAlDO7K90N3yesVH3ey";
+            } else if (year == "2" && cgpa <= 5) {
+                link = "https://chat.whatsapp.com/Bth0Ca9aF924yazM10E7UM";
+            } else if (year == "2" && cgpa <= 7.2) {
+                link = "https://chat.whatsapp.com/JY525ob645r6wNi7IfKvI2";
+            } else if (year == "2" && cgpa > 7.2) {
+                link = "https://chat.whatsapp.com/K7nwhAenTzr0rFaXf6u5mu";
+            } else if (year == "3" && cgpa <= 5) {
+                link = "https://chat.whatsapp.com/FjKH3k8xlUzHd4rpRo4krb";
+            } else if (year == "3" && cgpa <= 7.2) {
+                link = "https://chat.whatsapp.com/DSSR2n6YTjaA4VsxLJXfud";
+            } else if (year == "3" && cgpa > 7.2) {
+                link = "https://chat.whatsapp.com/HRhLv6s42u47J3oSpUtesy";
+            } else {
+                link = "https://chat.whatsapp.com/Cy31fcjEEJF4TtOdjjoBuw";
+            }
+
+            // Set WhatsApp Icon and Join Group
+            const whatsappImage = document.getElementById("whatsappImage");
+            whatsappImage.src = "https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg";
+            document.getElementById("whatsappIcon").style.display = "block";
+
+            const whatsappLink = document.getElementById("whatsappLink");
+            whatsappLink.href = link;
+            document.getElementById("joinGroupLink").style.display = "block";
+
+            // Profile Picture and College Logo Handling
+            const profilePicture = document.getElementById("profilePicture");
+            const collegeLogoImage = document.getElementById("collegeLogoImage");
+
+            // Display Profile Picture
+            const reader1 = new FileReader();
+            reader1.onload = function (e) {
+                profilePicture.src = e.target.result;
+            };
+            reader1.readAsDataURL(profilePic);
+
+            // Display College Logo
+            const reader2 = new FileReader();
+            reader2.onload = function (e) {
+                collegeLogoImage.src = e.target.result;
+            };
+            reader2.readAsDataURL(collegeLogo);
+        }
+
+        // Generate Club ID by subtracting 18 from Roll Number
+        function generateClubID(rollNumber) {
+            return rollNumber - 18;
+        }
+
+        // Download ID Card Functionality
+        function downloadIDCard() {
+            html2canvas(document.getElementById("generatedIdCard")).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "Student_ID_Card.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
