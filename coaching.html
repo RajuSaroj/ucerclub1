@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajubhai Tech Academy Classes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text: #eaeaea;
+            --success: #00d9ff;
+            --warning: #ffd700;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            min-height: 100vh;
+            color: var(--text);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(233, 69, 96, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(0, 217, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--highlight), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.8;
+            font-weight: 300;
+        }
+
+        .login-container {
+            max-width: 500px;
+            margin: 80px auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 50px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .login-tabs button {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .login-tabs button.active {
+            background: var(--highlight);
+            border-color: var(--highlight);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--success);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--success);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--highlight), #ff6b9d);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.5);
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dashboard-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: var(--success);
+        }
+
+        .logout-btn {
+            padding: 12px 30px;
+            background: var(--highlight);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+        }
+
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--highlight), var(--success));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .section-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .section-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: var(--warning);
+        }
+
+        .upload-area {
+            margin-bottom: 20px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            display: block;
+            padding: 15px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 2px dashed var(--success);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-label:hover {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: var(--warning);
+        }
+
+        .time-settings {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .time-settings input,
+        .time-settings select {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95em;
+        }
+
+        .content-list {
+            margin-top: 20px;
+        }
+
+        .content-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid var(--highlight);
+            animation: slideInLeft 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        .content-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(5px);
+        }
+
+        .content-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .content-type {
+            display: inline-block;
+            padding: 5px 12px;
+            background: var(--accent);
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .content-time {
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: var(--highlight);
+            border-color: var(--highlight);
+        }
+
+        .delete-btn {
+            background: rgba(233, 69, 96, 0.2);
+            border-color: var(--highlight);
+        }
+
+        .delete-btn:hover {
+            background: var(--highlight);
+        }
+
+        .student-list {
+            margin-top: 20px;
+        }
+
+        .student-item {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--success);
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .student-info {
+            font-weight: 500;
+        }
+
+        .student-email {
+            font-size: 0.9em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: var(--secondary);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8em;
+            color: var(--warning);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 2em;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Work Sans', sans-serif;
+            font-size: 1em;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--success);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .timer-display {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--warning);
+            margin-left: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .password-info {
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(0, 217, 255, 0.1);
+            border-left: 4px solid var(--success);
+            border-radius: 8px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .sections-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .login-container {
+                padding: 30px;
+            }
+
+            .time-settings {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Rajubhai Tech Academy Classes</h1>
+            <p>Student & Teacher Management System</p>
+        </div>
+
+        <!-- Notification Board (Visible to all without login) -->
+        <div id="notificationBoard" class="section-card" style="margin-bottom: 30px;">
+            <h3>📢 Notice Board</h3>
+            <div id="notificationList" class="content-list"></div>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-container">
+            <div class="login-tabs">
+                <button class="active" onclick="switchLoginTab('student')">Student Login</button>
+                <button onclick="switchLoginTab('teacher')">Teacher Login</button>
+            </div>
+
+            <div id="studentLogin" class="login-form active">
+                <div class="form-group">
+                    <label>Student Name</label>
+                    <input type="text" id="studentName" placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="studentPassword" placeholder="Enter password">
+                </div>
+                <button class="btn" onclick="studentLogin()">Login as Student</button>
+            </div>
+
+            <div id="teacherLogin" class="login-form">
+                <div class="form-group">
+                    <label>Teacher Email</label>
+                    <input type="email" id="teacherEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="teacherPassword" placeholder="Enter password">
+                </div>
+                <button class="btn" onclick="teacherLogin()">Login as Teacher</button>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="dashboard">
+            <div class="dashboard-header">
+                <h2>Student Dashboard</h2>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="sections-grid">
+                <div class="section-card">
+                    <h3>📸 Images</h3>
+                    <div id="studentImages" class="content-list"></div>
+                </div>
+
+                <div class="section-card">
+                    <h3>📄 PDFs</h3>
+                    <div id="studentPdfs" class="content-list"></div>
+                </div>
+
+                <div class="section-card">
+                    <h3>📝 Text Notes</h3>
+                    <div id="studentTexts" class="content-list"></div>
+                </div>
+
+                <div class="section-card">
+                    <h3>🔗 Links</h3>
+                    <div id="studentLinks" class="content-list"></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>👥 Student List</h3>
+                <div id="studentListView" class="student-list"></div>
+            </div>
+        </div>
+
+        <!-- Teacher Dashboard -->
+        <div id="teacherDashboard" class="dashboard">
+            <div class="dashboard-header">
+                <h2>Teacher Dashboard</h2>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div class="sections-grid">
+                <!-- Image Section -->
+                <div class="section-card">
+                    <h3>📸 Upload Images</h3>
+                    <div class="upload-area">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="imageInput" accept="image/*" multiple>
+                            <label for="imageInput" class="file-label">📤 Choose Images</label>
+                        </div>
+                        <div class="time-settings">
+                            <select id="imageDeleteType">
+                                <option value="hours">Delete After Hours</option>
+                                <option value="time">Delete at Specific Time</option>
+                            </select>
+                            <input type="number" id="imageHours" placeholder="Hours" min="1">
+                            <input type="time" id="imageTime" style="display:none;">
+                        </div>
+                        <button class="btn" onclick="uploadContent('image')">Upload Images</button>
+                    </div>
+                    <div id="teacherImages" class="content-list"></div>
+                </div>
+
+                <!-- PDF Section -->
+                <div class="section-card">
+                    <h3>📄 Upload PDFs</h3>
+                    <div class="upload-area">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="pdfInput" accept=".pdf" multiple>
+                            <label for="pdfInput" class="file-label">📤 Choose PDFs</label>
+                        </div>
+                        <div class="time-settings">
+                            <select id="pdfDeleteType">
+                                <option value="hours">Delete After Hours</option>
+                                <option value="time">Delete at Specific Time</option>
+                            </select>
+                            <input type="number" id="pdfHours" placeholder="Hours" min="1">
+                            <input type="time" id="pdfTime" style="display:none;">
+                        </div>
+                        <button class="btn" onclick="uploadContent('pdf')">Upload PDFs</button>
+                    </div>
+                    <div id="teacherPdfs" class="content-list"></div>
+                </div>
+
+                <!-- Text Section -->
+                <div class="section-card">
+                    <h3>📝 Text Notes</h3>
+                    <div class="upload-area">
+                        <textarea id="textContent" placeholder="Enter text notes here..."></textarea>
+                        <div class="time-settings">
+                            <select id="textDeleteType">
+                                <option value="hours">Delete After Hours</option>
+                                <option value="time">Delete at Specific Time</option>
+                            </select>
+                            <input type="number" id="textHours" placeholder="Hours" min="1">
+                            <input type="time" id="textTime" style="display:none;">
+                        </div>
+                        <button class="btn" onclick="uploadContent('text')">Post Text</button>
+                    </div>
+                    <div id="teacherTexts" class="content-list"></div>
+                </div>
+
+                <!-- Link Section -->
+                <div class="section-card">
+                    <h3>🔗 Add Links</h3>
+                    <div class="upload-area">
+                        <div class="form-group">
+                            <input type="text" id="linkUrl" placeholder="Enter URL" style="width:100%; padding:12px; margin-bottom:10px;">
+                            <input type="text" id="linkTitle" placeholder="Link Title/Name" style="width:100%; padding:12px;">
+                        </div>
+                        <div class="time-settings">
+                            <select id="linkDeleteType">
+                                <option value="hours">Delete After Hours</option>
+                                <option value="time">Delete at Specific Time</option>
+                            </select>
+                            <input type="number" id="linkHours" placeholder="Hours" min="1">
+                            <input type="time" id="linkTime" style="display:none;">
+                        </div>
+                        <button class="btn" onclick="uploadContent('link')">Add Link</button>
+                    </div>
+                    <div id="teacherLinks" class="content-list"></div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>👥 Manage Students</h3>
+                <div class="form-group">
+                    <input type="email" id="newStudentEmail" placeholder="Student Email" style="width:100%; padding:12px; margin-bottom:10px;">
+                    <input type="text" id="newStudentName" placeholder="Student Name" style="width:100%; padding:12px;">
+                </div>
+                <button class="btn" onclick="addStudent()">Add Student</button>
+                <div id="teacherStudentList" class="student-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>View Content</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let db;
+        let storage;
+        let currentUser = null;
+        let userType = null;
+        let deleteTimers = {};
+
+        // Initialize Firebase
+        function initFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyA4DKdMB2kVHyPqO05in38P5ptC5NEdQEI",
+                authDomain: "jobalert-6291c.firebaseapp.com",
+                projectId: "jobalert-6291c",
+                storageBucket: "jobalert-6291c.firebasestorage.app",
+                messagingSenderId: "349571094976",
+                appId: "1:349571094976:web:9901dd10f523f74794d025",
+                measurementId: "G-8QC4X6HYMR"
+            };
+
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.firestore();
+                storage = firebase.storage();
+                console.log('Firebase initialized successfully');
+                loadAllContent();
+                loadStudents();
+                startAutoDeleteChecker();
+            } catch (err) {
+                console.error('Firebase initialization error:', err);
+            }
+        }
+
+        // Generate dynamic password
+        function generatePassword() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = String(now.getFullYear()).slice(-2);
+            
+            return `${hours}${minutes}${day}${month}${year}`;
+        }
+
+        // Switch login tabs
+        function switchLoginTab(type) {
+            document.querySelectorAll('.login-tabs button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.login-form').forEach(form => form.classList.remove('active'));
+            
+            if (type === 'student') {
+                document.querySelectorAll('.login-tabs button')[0].classList.add('active');
+                document.getElementById('studentLogin').classList.add('active');
+            } else {
+                document.querySelectorAll('.login-tabs button')[1].classList.add('active');
+                document.getElementById('teacherLogin').classList.add('active');
+            }
+        }
+
+        // Student Login
+        function studentLogin() {
+            const name = document.getElementById('studentName').value.trim();
+            const password = document.getElementById('studentPassword').value;
+            
+            if (!name || !password) {
+                alert('Please enter your name and password');
+                return;
+            }
+
+            if (password !== '1811021') {
+                alert('Incorrect password!');
+                return;
+            }
+
+            currentUser = name;
+            userType = 'student';
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('studentDashboard').classList.add('active');
+            loadAllContent();
+        }
+
+        // Teacher Login
+        function teacherLogin() {
+            const email = document.getElementById('teacherEmail').value.trim();
+            const password = document.getElementById('teacherPassword').value;
+            const correctPassword = generatePassword();
+
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+
+            if (password !== correctPassword) {
+                alert('Incorrect password!');
+                return;
+            }
+
+            currentUser = email;
+            userType = 'teacher';
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('teacherDashboard').classList.add('active');
+            loadAllContent();
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            userType = null;
+            document.getElementById('studentDashboard').classList.remove('active');
+            document.getElementById('teacherDashboard').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentPassword').value = '';
+            document.getElementById('teacherEmail').value = '';
+            document.getElementById('teacherPassword').value = '';
+        }
+
+        // Handle delete type selection
+        document.querySelectorAll('[id$="DeleteType"]').forEach(select => {
+            select.addEventListener('change', function() {
+                const type = this.id.replace('DeleteType', '');
+                const hoursInput = document.getElementById(type + 'Hours');
+                const timeInput = document.getElementById(type + 'Time');
+                
+                if (this.value === 'hours') {
+                    hoursInput.style.display = 'block';
+                    timeInput.style.display = 'none';
+                } else {
+                    hoursInput.style.display = 'none';
+                    timeInput.style.display = 'block';
+                }
+            });
+        });
+
+        // Upload Content
+        async function uploadContent(type) {
+            if (!db || !storage) {
+                alert('Firebase not initialized');
+                return;
+            }
+
+            let deleteType = document.getElementById(type + 'DeleteType').value;
+            let deleteTime;
+
+            if (deleteType === 'hours') {
+                const hours = parseInt(document.getElementById(type + 'Hours').value);
+                if (!hours || hours < 1) {
+                    alert('Please enter valid hours');
+                    return;
+                }
+                deleteTime = new Date(Date.now() + hours * 60 * 60 * 1000);
+            } else {
+                const timeValue = document.getElementById(type + 'Time').value;
+                if (!timeValue) {
+                    alert('Please select a time');
+                    return;
+                }
+                const [hours, minutes] = timeValue.split(':');
+                deleteTime = new Date();
+                deleteTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                
+                if (deleteTime <= new Date()) {
+                    deleteTime.setDate(deleteTime.getDate() + 1);
+                }
+            }
+
+            try {
+                if (type === 'image' || type === 'pdf') {
+                    const input = document.getElementById(type + 'Input');
+                    const files = input.files;
+                    
+                    if (!files.length) {
+                        alert('Please select files');
+                        return;
+                    }
+
+                    for (let file of files) {
+                        const storageRef = storage.ref(`${type}s/${Date.now()}_${file.name}`);
+                        const snapshot = await storageRef.put(file);
+                        const url = await snapshot.ref.getDownloadURL();
+
+                        await db.collection('content').add({
+                            type: type,
+                            url: url,
+                            fileName: file.name,
+                            uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            deleteAt: firebase.firestore.Timestamp.fromDate(deleteTime),
+                            uploadedBy: currentUser
+                        });
+                    }
+
+                    input.value = '';
+                } else if (type === 'text') {
+                    const text = document.getElementById('textContent').value.trim();
+                    if (!text) {
+                        alert('Please enter text');
+                        return;
+                    }
+
+                    await db.collection('content').add({
+                        type: 'text',
+                        content: text,
+                        uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        deleteAt: firebase.firestore.Timestamp.fromDate(deleteTime),
+                        uploadedBy: currentUser
+                    });
+
+                    document.getElementById('textContent').value = '';
+                } else if (type === 'link') {
+                    const url = document.getElementById('linkUrl').value.trim();
+                    const title = document.getElementById('linkTitle').value.trim();
+                    
+                    if (!url || !title) {
+                        alert('Please enter URL and title');
+                        return;
+                    }
+
+                    await db.collection('content').add({
+                        type: 'link',
+                        url: url,
+                        title: title,
+                        uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        deleteAt: firebase.firestore.Timestamp.fromDate(deleteTime),
+                        uploadedBy: currentUser
+                    });
+
+                    document.getElementById('linkUrl').value = '';
+                    document.getElementById('linkTitle').value = '';
+                }
+
+                alert('Content uploaded successfully!');
+                loadAllContent();
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Error uploading content');
+            }
+        }
+
+        // Load all content
+        function loadAllContent() {
+            if (!db) return;
+
+            db.collection('content').orderBy('uploadedAt', 'desc').onSnapshot(snapshot => {
+                const images = [];
+                const pdfs = [];
+                const texts = [];
+                const links = [];
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    
+                    switch(data.type) {
+                        case 'image': images.push(data); break;
+                        case 'pdf': pdfs.push(data); break;
+                        case 'text': texts.push(data); break;
+                        case 'link': links.push(data); break;
+                    }
+                });
+
+                displayContent('Images', images);
+                displayContent('Pdfs', pdfs);
+                displayContent('Texts', texts);
+                displayContent('Links', links);
+            });
+        }
+
+        // Display content
+        function displayContent(type, items) {
+            const studentContainer = document.getElementById(`student${type}`);
+            const teacherContainer = document.getElementById(`teacher${type}`);
+
+            const html = items.map(item => {
+                const uploadTime = item.uploadedAt ? item.uploadedAt.toDate().toLocaleString() : 'N/A';
+                const deleteTime = item.deleteAt ? item.deleteAt.toDate().toLocaleString() : 'N/A';
+                const timeRemaining = item.deleteAt ? getTimeRemaining(item.deleteAt.toDate()) : '';
+
+                return `
+                    <div class="content-item">
+                        <div class="content-item-header">
+                            <span class="content-type">${item.type.toUpperCase()}</span>
+                            <span class="content-time">📅 ${uploadTime}</span>
+                        </div>
+                        ${item.fileName ? `<div style="margin:8px 0;"><strong>File:</strong> ${item.fileName}</div>` : ''}
+                        ${item.title ? `<div style="margin:8px 0;"><strong>Title:</strong> ${item.title}</div>` : ''}
+                        ${item.content ? `<div style="margin:8px 0; max-height:100px; overflow:hidden;">${item.content.substring(0, 100)}...</div>` : ''}
+                        <div style="margin:8px 0; font-size:0.9em; opacity:0.8;">
+                            🗑️ Auto-delete: ${deleteTime}
+                            ${timeRemaining ? `<span class="timer-display">${timeRemaining}</span>` : ''}
+                        </div>
+                        <div class="content-actions">
+                            <button class="action-btn" onclick="viewContent('${item.id}', '${item.type}')">
+                                ${item.type === 'link' ? '🔗 Open' : '👁️ View'}
+                            </button>
+                            ${userType === 'teacher' ? `<button class="action-btn delete-btn" onclick="deleteContent('${item.id}')">🗑️ Delete</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (studentContainer) studentContainer.innerHTML = html || '<p style="opacity:0.6;">No content available</p>';
+            if (teacherContainer) teacherContainer.innerHTML = html || '<p style="opacity:0.6;">No content uploaded yet</p>';
+        }
+
+        // Get time remaining
+        function getTimeRemaining(deleteTime) {
+            const now = new Date();
+            const diff = deleteTime - now;
+            
+            if (diff <= 0) return 'Expired';
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            return `${hours}h ${minutes}m remaining`;
+        }
+
+        // View content
+        async function viewContent(id, type) {
+            if (!db) return;
+
+            try {
+                const doc = await db.collection('content').doc(id).get();
+                const data = doc.data();
+
+                if (type === 'link') {
+                    window.open(data.url, '_blank');
+                    return;
+                }
+
+                const modal = document.getElementById('viewModal');
+                const modalBody = document.getElementById('modalBody');
+
+                if (type === 'image') {
+                    modalBody.innerHTML = `<img src="${data.url}" style="width:100%; border-radius:10px;">`;
+                } else if (type === 'pdf') {
+                    modalBody.innerHTML = `<iframe src="${data.url}" style="width:100%; height:500px; border:none; border-radius:10px;"></iframe>`;
+                } else if (type === 'text') {
+                    modalBody.innerHTML = `<div style="white-space:pre-wrap; padding:20px; background:rgba(255,255,255,0.05); border-radius:10px;">${data.content}</div>`;
+                }
+
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('View error:', error);
+                alert('Error viewing content');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('viewModal').classList.remove('active');
+        }
+
+        // Delete content
+        async function deleteContent(id) {
+            if (!db) return;
+            
+            if (!confirm('Are you sure you want to delete this content?')) return;
+
+            try {
+                await db.collection('content').doc(id).delete();
+                alert('Content deleted successfully');
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Error deleting content');
+            }
+        }
+
+        // Auto delete checker
+        function startAutoDeleteChecker() {
+            setInterval(async () => {
+                if (!db) return;
+
+                const now = firebase.firestore.Timestamp.now();
+                const snapshot = await db.collection('content')
+                    .where('deleteAt', '<=', now)
+                    .get();
+
+                snapshot.forEach(async doc => {
+                    await db.collection('content').doc(doc.id).delete();
+                    console.log('Auto-deleted content:', doc.id);
+                });
+            }, 60000); // Check every minute
+        }
+
+        // Add student
+        async function addStudent() {
+            const email = document.getElementById('newStudentEmail').value.trim();
+            const name = document.getElementById('newStudentName').value.trim();
+
+            if (!email || !name) {
+                alert('Please enter both email and name');
+                return;
+            }
+
+            try {
+                await db.collection('students').add({
+                    email: email,
+                    name: name,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                document.getElementById('newStudentEmail').value = '';
+                document.getElementById('newStudentName').value = '';
+                alert('Student added successfully');
+            } catch (error) {
+                console.error('Error adding student:', error);
+                alert('Error adding student');
+            }
+        }
+
+        // Load students
+        function loadStudents() {
+            if (!db) return;
+
+            db.collection('students').orderBy('addedAt', 'desc').onSnapshot(snapshot => {
+                const students = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    data.id = doc.id;
+                    students.push(data);
+                });
+
+                const html = students.map(student => `
+                    <div class="student-item">
+                        <div>
+                            <div class="student-info">${student.name}</div>
+                            <div class="student-email">${student.email}</div>
+                        </div>
+                        ${userType === 'teacher' ? `<button class="action-btn delete-btn" onclick="deleteStudent('${student.id}')">Remove</button>` : ''}
+                    </div>
+                `).join('');
+
+                const studentListView = document.getElementById('studentListView');
+                const teacherStudentList = document.getElementById('teacherStudentList');
+
+                if (studentListView) studentListView.innerHTML = html || '<p style="opacity:0.6;">No students added</p>';
+                if (teacherStudentList) teacherStudentList.innerHTML = html || '<p style="opacity:0.6;">No students added</p>';
+            });
+        }
+
+        // Delete student
+        async function deleteStudent(id) {
+            if (!confirm('Remove this student?')) return;
+
+            try {
+                await db.collection('students').doc(id).delete();
+                alert('Student removed');
+            } catch (error) {
+                console.error('Error removing student:', error);
+                alert('Error removing student');
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initFirebase);
+    </script>
+</body>
+</html>
