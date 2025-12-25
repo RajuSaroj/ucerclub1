@@ -679,6 +679,41 @@
         font-size: 36px;
       }
     }
+
+
+
+   
+.bottom-menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #111;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 9999;
+}
+
+.bottom-menu a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.bottom-menu a:hover {
+  color: #00c3ff;
+}
+
+/* Section spacing so menu overlap na kare */
+.section-box {
+  padding: 40px 20px;
+  margin-bottom: 60px;
+}
+
+
+  
+    
   </style>
 </head>
 <body>
@@ -2943,5 +2978,32 @@
 
     window.onload = function() { initFirebase(); init(); };
   </script>
+
+  <!-- Bottom Menu Start -->
+<div class="bottom-menu">
+  <a href="#about">About</a>
+  <a href="#coaching">Coaching</a>
+  <a href="#assignment">Assignment</a>
+</div>
+<!-- Bottom Menu End -->
+
+
+  <div id="about" class="section-box">
+  <h2>About</h2>
+  <p>Yahan apna about content add karo</p>
+</div>
+
+<div id="coaching" class="section-box">
+  <h2>Coaching</h2>
+  <p>Coaching details, batches, fees etc.</p>
+</div>
+
+<div id="assignment" class="section-box">
+  <h2>Assignment</h2>
+  <p>Assignment links yahan add honge</p>
+</div>
+
+  
 </body>
+
 </html>
