@@ -1,3010 +1,377 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAJU SAROJ B.TECH COMPUTER SCIENCE(AIML)</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  <!-- Firebase (add your config below) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <style>
-    :root {
-      --primary: #667eea;
-      --primary-dark: #5568d3;
-      --secondary: #1a202c;
-      --success: #48bb78;
-      --danger: #f56565;
-      --warning: #ed8936;
-      --info: #4299e1;
-      --light: #f7fafc;
-      --dark: #2d3748;
-      --gray: #718096;
-      --accent: #9f7aea;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: var(--dark);
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: auto;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-    
-    .top-bar {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      padding: 20px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 24px;
-      font-weight: 700;
-    }
-    
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .tab-navigation {
-      background: #f8f9fa;
-      padding: 0;
-      display: flex;
-      border-bottom: 2px solid #e2e8f0;
-    }
-    
-    .tab-btn {
-      padding: 16px 24px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--gray);
-      transition: all 0.3s;
-      border-bottom: 3px solid transparent;
-      font-size: 15px;
-    }
-    
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      background: white;
-    }
-    
-    .tab-btn:hover {
-      background: rgba(102, 126, 234, 0.1);
-    }
-    
-    .content-area {
-      padding: 30px;
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .btn {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-    }
-    
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-success {
-      background: var(--success);
-      color: white;
-    }
-    
-    .btn-success:hover {
-      background: #38a169;
-      transform: translateY(-2px);
-    }
-    
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background: #e53e3e;
-    }
-    
-    .btn-secondary {
-      background: var(--secondary);
-      color: white;
-    }
-    
-    .btn-outline {
-      background: white;
-      color: var(--primary);
-      border: 2px solid var(--primary);
-    }
-    
-    .btn-outline:hover {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      border: 1px solid #e2e8f0;
-    }
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .card-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--dark);
-    }
-    
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    label {
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: var(--dark);
-      font-size: 14px;
-    }
-    
-    input, select, textarea {
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #e2e8f0;
-      font-size: 15px;
-      transition: all 0.3s;
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-      font-family: inherit;
-    }
-    
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    
-    .stat-card {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      transition: transform 0.3s;
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .stat-card.success {
-      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    }
-    
-    .stat-card.warning {
-      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-    }
-    
-    .stat-card.danger {
-      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-    }
-    
-    .stat-number {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin: 10px 0;
-    }
-    
-    .stat-label {
-      opacity: 0.9;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: flex-end;
-    }
-    
-    .filter-group {
-      flex: 1;
-      min-width: 150px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    
-    th, td {
-      padding: 16px;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    
-    th {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    
-    tr:hover {
-      background: #f7fafc;
-    }
-    
-    .status-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-block;
-    }
-    
-    .status-applied {
-      background: #c6f6d5;
-      color: #22543d;
-    }
-    
-    .status-pending {
-      background: #feebc8;
-      color: #7c2d12;
-    }
-    
-    .status-expired {
-      background: #fed7d7;
-      color: #742a2a;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    
-    .action-btn {
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    
-    .chart-container {
-      position: relative;
-      height: 350px;
-      margin: 20px 0;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(4px);
-    }
-    
-    .modal-content {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #e2e8f0;
-    }
-    
-    .close {
-      font-size: 28px;
-      cursor: pointer;
-      color: var(--gray);
-      transition: color 0.3s;
-    }
-    
-    .close:hover {
-      color: var(--danger);
-    }
-    
-    .notification {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 16px 24px;
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      z-index: 1001;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transform: translateX(400px);
-      transition: transform 0.4s ease;
-      max-width: 400px;
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification.success {
-      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    }
-    
-    .notification.error {
-      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-    }
-    
-    .notification.warning {
-      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-    }
-    
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .calendar-header {
-      text-align: center;
-      font-weight: 700;
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-    }
-    
-    .calendar-day {
-      aspect-ratio: 1;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      background: white;
-    }
-    
-    .calendar-day:hover {
-      border-color: var(--primary);
-      transform: scale(1.05);
-    }
-    
-    .calendar-day.has-exam {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(159, 122, 234, 0.1) 100%);
-      border-color: var(--primary);
-    }
-    
-    .calendar-day.today {
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-    }
-    
-    .day-number {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .exam-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--danger);
-      border-radius: 50%;
-      position: absolute;
-      bottom: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    
-    .progress-bar {
-      background: #e2e8f0;
-      height: 10px;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-      transition: width 0.5s ease;
-    }
-
-    /* Security Warning Styles */
-    .security-warning {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
-      z-index: 999999;
-      justify-content: center;
-      align-items: center;
-      animation: glitchBg 0.3s infinite;
-    }
-
-    .security-warning.active {
-      display: flex;
-    }
-
-    @keyframes glitchBg {
-      0%, 100% { background-position: 0 0; }
-      50% { background-position: 5px 5px; }
-    }
-
-    .warning-content {
-      background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
-      padding: 40px;
-      border-radius: 20px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
-      border: 3px solid #ff0000;
-      animation: pulse 1s infinite, shake 0.5s infinite;
-      text-align: center;
-      color: white;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.8); }
-      50% { box-shadow: 0 0 80px rgba(255, 0, 0, 1); }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px) rotate(-1deg); }
-      75% { transform: translateX(5px) rotate(1deg); }
-    }
-
-    .warning-icon {
-      font-size: 80px;
-      animation: blink 0.5s infinite;
-    }
-
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.3; }
-    }
-
-    .warning-title {
-      font-size: 32px;
-      font-weight: 900;
-      margin: 20px 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    }
-
-    .warning-text {
-      font-size: 18px;
-      margin: 15px 0;
-      line-height: 1.6;
-      font-weight: 600;
-    }
-
-    .timer-display {
-      font-size: 48px;
-      font-weight: 900;
-      margin: 30px 0;
-      color: #ffff00;
-      text-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
-      font-family: 'Courier New', monospace;
-    }
-
-    .system-info {
-      background: rgba(0,0,0,0.5);
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 20px;
-      font-family: 'Courier New', monospace;
-      text-align: left;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .warning-footer {
-      margin-top: 20px;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    @keyframes scanline {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(100%); }
-    }
-
-    .scanline {
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      animation: scanline 4s linear infinite;
-    }
-    
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .dashboard {
-        grid-template-columns: 1fr;
-      }
-      
-      .calendar-grid {
-        gap: 5px;
-      }
-      
-      .tab-navigation {
-        overflow-x: auto;
-      }
-      
-      .top-bar {
-        flex-direction: column;
-      }
-
-      .warning-content {
-        padding: 20px;
-      }
-
-      .warning-title {
-        font-size: 24px;
-      }
-
-      .timer-display {
-        font-size: 36px;
-      }
-    }
-
-
-
-   
-.bottom-menu {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #111;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 9999;
-}
-
-.bottom-menu a {
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.bottom-menu a:hover {
-  color: #00c3ff;
-}
-
-/* Section spacing so menu overlap na kare */
-.section-box {
-  padding: 40px 20px;
-  margin-bottom: 60px;
-}
-
-
-  
-    
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCER - Portal Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container-main {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .login-card.admin::before {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .login-card.teacher::before {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .login-card.student::before {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .login-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+        }
+        
+        .login-card:hover::before {
+            height: 100%;
+            opacity: 0.1;
+        }
+        
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .admin .card-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .teacher .card-icon {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .student .card-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .login-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .card-description {
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .admin .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .teacher .btn-login {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .student .btn-login {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            color: white;
+        }
+        
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .features li {
+            padding: 8px 0;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        
+        .features li i {
+            margin-right: 10px;
+            color: #48bb78;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.9;
+            animation: fadeIn 2s ease;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header p {
+                font-size: 1rem;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Security Warning Screen -->
-  <div class="security-warning" id="securityWarning">
-    <div class="scanline"></div>
-    <div class="warning-content">
-      <div class="warning-icon">⚠️</div>
-      <div class="warning-title">🚨 SECURITY BREACH DETECTED 🚨</div>
-      <div class="warning-text">
-        ⛔ UNAUTHORIZED ACCESS ATTEMPT DETECTED!<br>
-        🔒 YOUR DATA HAS BEEN BREACHED!<br>
-        💻 SYSTEM HACKING IN PROGRESS...
-      </div>
-      <div class="timer-display" id="timerDisplay">05:00</div>
-      <div class="system-info">
-        <div>🌐 IP ADDRESS: <span id="ipAddress">xxx.xxx.xxx.xxx</span></div>
-        <div>📍 LOCATION: <span id="locationInfo">Detecting...</span></div>
-        <div>🖥️ DEVICE: <span id="deviceInfo">Analyzing...</span></div>
-        <div>🔐 STATUS: <span style="color: #ff0000;">COMPROMISED</span></div>
-        <div>⚡ THREAT LEVEL: <span style="color: #ff0000;">CRITICAL</span></div>
-        <div>📊 DATA EXPOSED: <span style="color: #ffff00;">78%</span></div>
-      </div>
-      <div class="warning-text" style="margin-top: 20px;">
-        ⏰ YOUR SYSTEM WILL BE COMPLETELY HACKED IN:<br>
-        <strong>5 MINUTES</strong>
-      </div>
-      <div class="warning-footer">
-        🛡️ DO NOT ATTEMPT TO COPY, INSPECT, OR STEAL CODE<br>
-        ⚠️ ALL ACTIVITIES ARE BEING MONITORED & LOGGED
-      </div>
+    <div class="container-main">
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap me-3"></i>UCER Portal</h1>
+            <p>United College of Engineering & Research</p>
+            <p style="font-size: 1rem; margin-top: 10px;">Select Your Portal to Continue</p>
+        </div>
+        
+        <div class="cards-container">
+            <!-- Admin Card -->
+            <div class="login-card admin" onclick="goToPage('admin.html')">
+                <div class="card-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3 class="card-title">Admin Portal</h3>
+                <p class="card-description">Complete system control and management</p>
+                <ul class="features">
+                    <li><i class="fas fa-check-circle"></i> Manage Students & Teachers</li>
+                    <li><i class="fas fa-check-circle"></i> Approve Applications</li>
+                    <li><i class="fas fa-check-circle"></i> System Configuration</li>
+                    <li><i class="fas fa-check-circle"></i> Generate Reports</li>
+                </ul>
+                <button class="btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login as Admin
+                </button>
+            </div>
+            
+            <!-- Teacher Card -->
+            <div class="login-card teacher" onclick="goToPage('teacher.html')">
+                <div class="card-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3 class="card-title">Teacher Portal</h3>
+                <p class="card-description">Manage students and academic records</p>
+                <ul class="features">
+                    <li><i class="fas fa-check-circle"></i> Update Student Data</li>
+                    <li><i class="fas fa-check-circle"></i> Manage Attendance</li>
+                    <li><i class="fas fa-check-circle"></i> Enter Marks</li>
+                    <li><i class="fas fa-check-circle"></i> View Notices</li>
+                </ul>
+                <button class="btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login as Teacher
+                </button>
+            </div>
+            
+            <!-- Student Card -->
+            <div class="login-card student" onclick="goToPage('student.html')">
+                <div class="card-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <h3 class="card-title">Student Portal</h3>
+                <p class="card-description">Access your academic information</p>
+                <ul class="features">
+                    <li><i class="fas fa-check-circle"></i> View Performance</li>
+                    <li><i class="fas fa-check-circle"></i> Check Attendance</li>
+                    <li><i class="fas fa-check-circle"></i> Download Reports</li>
+                    <li><i class="fas fa-check-circle"></i> Read Notices</li>
+                </ul>
+                <button class="btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login as Student
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><i class="fas fa-shield-alt me-2"></i>Secure Login Portal</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">© 2025 UCER - All Rights Reserved</p>
+        </div>
     </div>
-  </div>
 
-  <div class="container">
-    <div class="top-bar">
-      <div class="logo">
-        <span>🎯</span>
-        <span>RAJU SAROJ B.TECH COMPUTER SCIENCE(AIML)</span>
-      </div>
-      <div class="top-controls">
-        <button class="btn btn-outline" onclick="exportToPDF()">📄 PDF Export</button>
-        <button class="btn btn-outline" onclick="exportToCSV()">📊 CSV Export</button>
-        <button class="btn btn-success" onclick="showNotifications()">🔔 Alerts</button>
-        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
-      </div>
-    </div>
-    
-    <div class="tab-navigation">
-      <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
-      <button class="tab-btn" onclick="switchTab('exams')">📝 Exam Manager</button>
-      <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendar</button>
-      <button class="tab-btn" onclick="switchTab('analytics')">📈 Analytics</button>
-    </div>
-    
-    <div class="content-area">
-      <!-- Dashboard Tab -->
-      <div id="dashboard-tab" class="tab-content active">
-        <div class="dashboard">
-          <div class="stat-card">
-            <div class="stat-label">Total Exams</div>
-            <div class="stat-number" id="totalExams">0</div>
-          </div>
-          <div class="stat-card success">
-            <div class="stat-label">Applied</div>
-            <div class="stat-number" id="appliedExams">0</div>
-          </div>
-          <div class="stat-card warning">
-            <div class="stat-label">Pending</div>
-            <div class="stat-number" id="pendingExams">0</div>
-          </div>
-          <div class="stat-card danger">
-            <div class="stat-label">Urgent (3 Days)</div>
-            <div class="stat-number" id="urgentExams">0</div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Category Distribution</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="categoryChart"></canvas>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Application Timeline</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="timelineChart"></canvas>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Exams Tab -->
-      <div id="exams-tab" class="tab-content">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title" id="formTitle">Add New Exam</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="examName">Exam Name *</label>
-              <input type="text" id="examName" placeholder="e.g., SSC CGL 2024">
-            </div>
-            <div class="form-group">
-              <label for="notificationDate">Notification Date *</label>
-              <input type="date" id="notificationDate">
-            </div>
-            <div class="form-group">
-              <label for="lastDate">Last Date *</label>
-              <input type="date" id="lastDate">
-            </div>
-            <div class="form-group">
-              <label for="examDate">Exam Date</label>
-              <input type="date" id="examDate">
-            </div>
-            <div class="form-group">
-              <label for="fee">Application Fee (₹) *</label>
-              <input type="number" id="fee" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label for="category">Category *</label>
-              <select id="category">
-                <option value="UPSC">UPSC</option>
-                <option value="SSC">SSC</option>
-                <option value="State PSC">State PSC</option>
-                <option value="Banking">Banking</option>
-                <option value="Railway">Railway</option>
-                <option value="Defense">Defense</option>
-                <option value="Teaching">Teaching</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="priority">Priority</label>
-              <select id="priority">
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="applyLink">Apply Link *</label>
-              <input type="url" id="applyLink" placeholder="https://...">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" placeholder="Add any important notes..."></textarea>
-          </div>
-          <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="btn btn-primary" onclick="addOrUpdateExam()" id="submitBtn">
-              ➕ Add Exam
-            </button>
-            <button class="btn btn-outline" onclick="clearForm()">Clear Form</button>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Exam List</h3>
-          </div>
-          <div class="filters">
-            <div class="filter-group">
-              <label for="searchBox">Search</label>
-              <input type="text" id="searchBox" placeholder="Search exams..." onkeyup="displayExams()">
-            </div>
-            <div class="filter-group">
-              <label for="filterCategory">Category</label>
-              <select id="filterCategory" onchange="displayExams()">
-                <option value="All">All Categories</option>
-                <option value="UPSC">UPSC</option>
-                <option value="SSC">SSC</option>
-                <option value="State PSC">State PSC</option>
-                <option value="Banking">Banking</option>
-                <option value="Railway">Railway</option>
-                <option value="Defense">Defense</option>
-                <option value="Teaching">Teaching</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="filterStatus">Status</label>
-              <select id="filterStatus" onchange="displayExams()">
-                <option value="All">All Status</option>
-                <option value="Applied">Applied</option>
-                <option value="Pending">Pending</option>
-                <option value="Expired">Expired</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="sortBy">Sort By</label>
-              <select id="sortBy" onchange="displayExams()">
-                <option value="lastDate">Last Date</option>
-                <option value="name">Name</option>
-                <option value="category">Category</option>
-                <option value="priority">Priority</option>
-              </select>
-            </div>
-          </div>
-          
-          <div style="overflow-x: auto;">
-            <table id="examTable">
-              <thead>
-                <tr>
-                  <th>Exam Name</th>
-                  <th>Category</th>
-                  <th>Last Date</th>
-                  <th>Days Left</th>
-                  <th>Priority</th>
-                  <th>Fee</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAJU SAROJ B.TECH COMPUTER SCIENCE(AIML)</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    :root {
-      --primary: #667eea;
-      --primary-dark: #5568d3;
-      --secondary: #1a202c;
-      --success: #48bb78;
-      --danger: #f56565;
-      --warning: #ed8936;
-      --info: #4299e1;
-      --light: #f7fafc;
-      --dark: #2d3748;
-      --gray: #718096;
-      --accent: #9f7aea;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: var(--dark);
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: auto;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
-    }
-    
-    .top-bar {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      padding: 20px 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 24px;
-      font-weight: 700;
-    }
-    
-    .top-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    
-    .tab-navigation {
-      background: #f8f9fa;
-      padding: 0;
-      display: flex;
-      border-bottom: 2px solid #e2e8f0;
-    }
-    
-    .tab-btn {
-      padding: 16px 24px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--gray);
-      transition: all 0.3s;
-      border-bottom: 3px solid transparent;
-      font-size: 15px;
-    }
-    
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      background: white;
-    }
-    
-    .tab-btn:hover {
-      background: rgba(102, 126, 234, 0.1);
-    }
-    
-    .content-area {
-      padding: 30px;
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-      animation: fadeIn 0.3s;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .btn {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-    }
-    
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-    
-    .btn-success {
-      background: var(--success);
-      color: white;
-    }
-    
-    .btn-success:hover {
-      background: #38a169;
-      transform: translateY(-2px);
-    }
-    
-    .btn-danger {
-      background: var(--danger);
-      color: white;
-    }
-    
-    .btn-danger:hover {
-      background: #e53e3e;
-    }
-    
-    .btn-secondary {
-      background: var(--secondary);
-      color: white;
-    }
-    
-    .btn-outline {
-      background: white;
-      color: var(--primary);
-      border: 2px solid var(--primary);
-    }
-    
-    .btn-outline:hover {
-      background: var(--primary);
-      color: white;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      border: 1px solid #e2e8f0;
-    }
-    
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .card-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--dark);
-    }
-    
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    label {
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: var(--dark);
-      font-size: 14px;
-    }
-    
-    input, select, textarea {
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #e2e8f0;
-      font-size: 15px;
-      transition: all 0.3s;
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-      font-family: inherit;
-    }
-    
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    
-    .stat-card {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      transition: transform 0.3s;
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .stat-card.success {
-      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    }
-    
-    .stat-card.warning {
-      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-    }
-    
-    .stat-card.danger {
-      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-    }
-    
-    .stat-number {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin: 10px 0;
-    }
-    
-    .stat-label {
-      opacity: 0.9;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
-      align-items: flex-end;
-    }
-    
-    .filter-group {
-      flex: 1;
-      min-width: 150px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    
-    th, td {
-      padding: 16px;
-      text-align: left;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    
-    th {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-      color: white;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    
-    tr:hover {
-      background: #f7fafc;
-    }
-    
-    .status-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-block;
-    }
-    
-    .status-applied {
-      background: #c6f6d5;
-      color: #22543d;
-    }
-    
-    .status-pending {
-      background: #feebc8;
-      color: #7c2d12;
-    }
-    
-    .status-expired {
-      background: #fed7d7;
-      color: #742a2a;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    
-    .action-btn {
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      font-size: 13px;
-      transition: all 0.2s;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-    
-    .chart-container {
-      position: relative;
-      height: 350px;
-      margin: 20px 0;
-    }
-    
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(4px);
-    }
-    
-    .modal-content {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 600px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #e2e8f0;
-    }
-    
-    .close {
-      font-size: 28px;
-      cursor: pointer;
-      color: var(--gray);
-      transition: color 0.3s;
-    }
-    
-    .close:hover {
-      color: var(--danger);
-    }
-    
-    .notification {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 16px 24px;
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      z-index: 1001;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transform: translateX(400px);
-      transition: transform 0.4s ease;
-      max-width: 400px;
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification.success {
-      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    }
-    
-    .notification.error {
-      background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-    }
-    
-    .notification.warning {
-      background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
-    }
-    
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
-    
-    .calendar-header {
-      text-align: center;
-      font-weight: 700;
-      padding: 12px;
-      background: var(--primary);
-      color: white;
-      border-radius: 8px;
-    }
-    
-    .calendar-day {
-      aspect-ratio: 1;
-      border: 2px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-      background: white;
-    }
-    
-    .calendar-day:hover {
-      border-color: var(--primary);
-      transform: scale(1.05);
-    }
-    
-    .calendar-day.has-exam {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(159, 122, 234, 0.1) 100%);
-      border-color: var(--primary);
-    }
-    
-    .calendar-day.today {
-      background: var(--primary);
-      color: white;
-      font-weight: 700;
-    }
-    
-    .day-number {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .exam-dot {
-      width: 6px;
-      height: 6px;
-      background: var(--danger);
-      border-radius: 50%;
-      position: absolute;
-      bottom: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-    
-    .progress-bar {
-      background: #e2e8f0;
-      height: 10px;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-      transition: width 0.5s ease;
-    }
-
-    /* Security Warning Styles */
-    .security-warning {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #000000 0%, #1a0000 100%);
-      z-index: 999999;
-      justify-content: center;
-      align-items: center;
-      animation: glitchBg 0.3s infinite;
-    }
-
-    .security-warning.active {
-      display: flex;
-    }
-
-    @keyframes glitchBg {
-      0%, 100% { background-position: 0 0; }
-      50% { background-position: 5px 5px; }
-    }
-
-    .warning-content {
-      background: linear-gradient(135deg, #ff0000 0%, #8b0000 100%);
-      padding: 40px;
-      border-radius: 20px;
-      max-width: 600px;
-      width: 90%;
-      box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
-      border: 3px solid #ff0000;
-      animation: pulse 1s infinite, shake 0.5s infinite;
-      text-align: center;
-      color: white;
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.8); }
-      50% { box-shadow: 0 0 80px rgba(255, 0, 0, 1); }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px) rotate(-1deg); }
-      75% { transform: translateX(5px) rotate(1deg); }
-    }
-
-    .warning-icon {
-      font-size: 80px;
-      animation: blink 0.5s infinite;
-    }
-
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.3; }
-    }
-
-    .warning-title {
-      font-size: 32px;
-      font-weight: 900;
-      margin: 20px 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    }
-
-    .warning-text {
-      font-size: 18px;
-      margin: 15px 0;
-      line-height: 1.6;
-      font-weight: 600;
-    }
-
-    .timer-display {
-      font-size: 48px;
-      font-weight: 900;
-      margin: 30px 0;
-      color: #ffff00;
-      text-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
-      font-family: 'Courier New', monospace;
-    }
-
-    .system-info {
-      background: rgba(0,0,0,0.5);
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 20px;
-      font-family: 'Courier New', monospace;
-      text-align: left;
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .warning-footer {
-      margin-top: 20px;
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    @keyframes scanline {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(100%); }
-    }
-
-    .scanline {
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      animation: scanline 4s linear infinite;
-    }
-    
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .dashboard {
-        grid-template-columns: 1fr;
-      }
-      
-      .calendar-grid {
-        gap: 5px;
-      }
-      
-      .tab-navigation {
-        overflow-x: auto;
-      }
-      
-      .top-bar {
-        flex-direction: column;
-      }
-
-      .warning-content {
-        padding: 20px;
-      }
-
-      .warning-title {
-        font-size: 24px;
-      }
-
-      .timer-display {
-        font-size: 36px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Security Warning Screen -->
-  <div class="security-warning" id="securityWarning">
-    <div class="scanline"></div>
-    <div class="warning-content">
-      <div class="warning-icon">⚠️</div>
-      <div class="warning-title">🚨 SECURITY BREACH DETECTED 🚨</div>
-      <div class="warning-text">
-        ⛔ UNAUTHORIZED ACCESS ATTEMPT DETECTED!<br>
-        🔒 YOUR DATA HAS BEEN BREACHED!<br>
-        💻 SYSTEM HACKING IN PROGRESS...
-      </div>
-      <div class="timer-display" id="timerDisplay">05:00</div>
-      <div class="system-info">
-        <div>🌐 IP ADDRESS: <span id="ipAddress">xxx.xxx.xxx.xxx</span></div>
-        <div>📍 LOCATION: <span id="locationInfo">Detecting...</span></div>
-        <div>🖥️ DEVICE: <span id="deviceInfo">Analyzing...</span></div>
-        <div>🔐 STATUS: <span style="color: #ff0000;">COMPROMISED</span></div>
-        <div>⚡ THREAT LEVEL: <span style="color: #ff0000;">CRITICAL</span></div>
-        <div>📊 DATA EXPOSED: <span style="color: #ffff00;">78%</span></div>
-      </div>
-      <div class="warning-text" style="margin-top: 20px;">
-        ⏰ YOUR SYSTEM WILL BE COMPLETELY HACKED IN:<br>
-        <strong>5 MINUTES</strong>
-      </div>
-      <div class="warning-footer">
-        🛡️ DO NOT ATTEMPT TO COPY, INSPECT, OR STEAL CODE<br>
-        ⚠️ ALL ACTIVITIES ARE BEING MONITORED & LOGGED
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="top-bar">
-      <div class="logo">
-        <span>🎯</span>
-        <span>RAJU SAROJ B.TECH COMPUTER SCIENCE(AIML)</span>
-      </div>
-      <div class="top-controls">
-        <button class="btn btn-outline" onclick="exportToPDF()">📄 PDF Export</button>
-        <button class="btn btn-outline" onclick="exportToCSV()">📊 CSV Export</button>
-        <button class="btn btn-success" onclick="showNotifications()">🔔 Alerts</button>
-        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All</button>
-      </div>
-    </div>
-    
-    <div class="tab-navigation">
-      <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
-      <button class="tab-btn" onclick="switchTab('exams')">📝 Exam Manager</button>
-      <button class="tab-btn" onclick="switchTab('calendar')">📅 Calendar</button>
-      <button class="tab-btn" onclick="switchTab('analytics')">📈 Analytics</button>
-    </div>
-    
-    <div class="content-area">
-      <!-- Dashboard Tab -->
-      <div id="dashboard-tab" class="tab-content active">
-        <div class="dashboard">
-          <div class="stat-card">
-            <div class="stat-label">Total Exams</div>
-            <div class="stat-number" id="totalExams">0</div>
-          </div>
-          <div class="stat-card success">
-            <div class="stat-label">Applied</div>
-            <div class="stat-number" id="appliedExams">0</div>
-          </div>
-          <div class="stat-card warning">
-            <div class="stat-label">Pending</div>
-            <div class="stat-number" id="pendingExams">0</div>
-          </div>
-          <div class="stat-card danger">
-            <div class="stat-label">Urgent (3 Days)</div>
-            <div class="stat-number" id="urgentExams">0</div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Category Distribution</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="categoryChart"></canvas>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Application Timeline</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="timelineChart"></canvas>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Exams Tab -->
-      <div id="exams-tab" class="tab-content">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title" id="formTitle">Add New Exam</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="examName">Exam Name *</label>
-              <input type="text" id="examName" placeholder="e.g., SSC CGL 2024">
-            </div>
-            <div class="form-group">
-              <label for="notificationDate">Notification Date *</label>
-              <input type="date" id="notificationDate">
-            </div>
-            <div class="form-group">
-              <label for="lastDate">Last Date *</label>
-              <input type="date" id="lastDate">
-            </div>
-            <div class="form-group">
-              <label for="examDate">Exam Date</label>
-              <input type="date" id="examDate">
-            </div>
-            <div class="form-group">
-              <label for="fee">Application Fee (₹) *</label>
-              <input type="number" id="fee" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label for="category">Category *</label>
-              <select id="category">
-                <option value="UPSC">UPSC</option>
-                <option value="SSC">SSC</option>
-                <option value="State PSC">State PSC</option>
-                <option value="Banking">Banking</option>
-                <option value="Railway">Railway</option>
-                <option value="Defense">Defense</option>
-                <option value="Teaching">Teaching</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="priority">Priority</label>
-              <select id="priority">
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="applyLink">Apply Link *</label>
-              <input type="url" id="applyLink" placeholder="https://...">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" placeholder="Add any important notes..."></textarea>
-          </div>
-          <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="btn btn-primary" onclick="addOrUpdateExam()" id="submitBtn">
-              ➕ Add Exam
-            </button>
-            <button class="btn btn-outline" onclick="clearForm()">Clear Form</button>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Exam List</h3>
-          </div>
-          <div class="filters">
-            <div class="filter-group">
-              <label for="searchBox">Search</label>
-              <input type="text" id="searchBox" placeholder="Search exams..." onkeyup="displayExams()">
-            </div>
-            <div class="filter-group">
-              <label for="filterCategory">Category</label>
-              <select id="filterCategory" onchange="displayExams()">
-                <option value="All">All Categories</option>
-                <option value="UPSC">UPSC</option>
-                <option value="SSC">SSC</option>
-                <option value="State PSC">State PSC</option>
-                <option value="Banking">Banking</option>
-                <option value="Railway">Railway</option>
-                <option value="Defense">Defense</option>
-                <option value="Teaching">Teaching</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="filterStatus">Status</label>
-              <select id="filterStatus" onchange="displayExams()">
-                <option value="All">All Status</option>
-                <option value="Applied">Applied</option>
-                <option value="Pending">Pending</option>
-                <option value="Expired">Expired</option>
-              </select>
-            </div>
-            <div class="filter-group">
-              <label for="sortBy">Sort By</label>
-              <select id="sortBy" onchange="displayExams()">
-                <option value="lastDate">Last Date</option>
-                <option value="name">Name</option>
-                <option value="category">Category</option>
-                <option value="priority">Priority</option>
-              </select>
-            </div>
-          </div>
-          
-          <div style="overflow-x: auto;">
-            <table id="examTable">
-              <thead>
-                <tr>
-                  <th>Exam Name</th>
-                  <th>Category</th>
-                  <th>Last Date</th>
-                  <th>Days Left</th>
-                  <th>Priority</th>
-                  <th>Fee</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Calendar Tab -->
-      <div id="calendar-tab" class="tab-content">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Exam Calendar</h3>
-            <div>
-              <button class="btn btn-primary" onclick="changeMonth(-1)">← Prev</button>
-              <span id="currentMonth" style="margin: 0 15px; font-weight: 600;"></span>
-              <button class="btn btn-primary" onclick="changeMonth(1)">Next →</button>
-            </div>
-          </div>
-          <div id="calendarContainer"></div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Upcoming Deadlines</h3>
-          </div>
-          <div id="upcomingList"></div>
-        </div>
-      </div>
-      
-      <!-- Analytics Tab -->
-      <div id="analytics-tab" class="tab-content">
-        <div class="analytics-grid">
-          <div class="card">
-            <h3 class="card-title">Application Rate</h3>
-            <div class="stat-number" id="appRate">0%</div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="appProgress"></div>
-            </div>
-          </div>
-          
-          <div class="card">
-            <h3 class="card-title">Total Investment</h3>
-            <div class="stat-number" id="totalInvestment">₹0</div>
-          </div>
-          
-          <div class="card">
-            <h3 class="card-title">Avg. Days to Apply</h3>
-            <div class="stat-number" id="avgDays">0</div>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Priority Distribution</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="priorityChart"></canvas>
-          </div>
-        </div>
-        
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Monthly Trends</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="trendsChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <div class="notification" id="notification">
-    <span id="notification-message"></span>
-  </div>
-  
-  <div class="modal" id="notificationsModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>🔔 Upcoming Deadlines & Alerts</h3>
-        <span class="close" onclick="closeModal('notificationsModal')">&times;</span>
-      </div>
-      <div id="notificationsList"></div>
-    </div>
-  </div>
-  
-  <div class="modal" id="detailsModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>📋 Exam Details</h3>
-        <span class="close" onclick="closeModal('detailsModal')">&times;</span>
-      </div>
-      <div id="examDetails"></div>
-    </div>
-  </div>
-
-  <script>
-    // ==================== SECURITY SYSTEM ====================
-    let timerInterval;
-    let timeLeft = 300; // 5 minutes in seconds
-
-    // Disable Right Click
-    document.addEventListener('contextmenu', function(e) {
-      e.preventDefault();
-      triggerSecurityWarning();
-      return false;
-    });
-
-    // Disable double-click
-    document.addEventListener('dblclick', function(e) {
-      e.preventDefault();
-      triggerSecurityWarning();
-      return false;
-    });
-
-    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+S
-    document.addEventListener('keydown', function(e) {
-      // F12
-      if (e.keyCode === 123) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-      
-      // Ctrl+Shift+I (Inspect)
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-      
-      // Ctrl+Shift+J (Console)
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-      
-      // Ctrl+Shift+C (Inspect Element)
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-      
-      // Ctrl+U (View Source)
-      if (e.ctrlKey && e.keyCode === 85) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-      
-      // Ctrl+S (Save Page)
-      if (e.ctrlKey && e.keyCode === 83) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-
-      // Ctrl+A (Select All)
-      if (e.ctrlKey && e.keyCode === 65) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-
-      // Ctrl+C (Copy)
-      if (e.ctrlKey && e.keyCode === 67) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-
-      // Ctrl+X (Cut)
-      if (e.ctrlKey && e.keyCode === 88) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-
-      // Ctrl+P (Print)
-      if (e.ctrlKey && e.keyCode === 80) {
-        e.preventDefault();
-        triggerSecurityWarning();
-        return false;
-      }
-    });
-
-    // Disable text selection
-    document.addEventListener('selectstart', function(e) {
-      e.preventDefault();
-      return false;
-    });
-
-    // Disable copy
-    document.addEventListener('copy', function(e) {
-      e.preventDefault();
-      triggerSecurityWarning();
-      return false;
-    });
-
-    // Disable cut
-    document.addEventListener('cut', function(e) {
-      e.preventDefault();
-      triggerSecurityWarning();
-      return false;
-    });
-
-    // Disable paste
-    document.addEventListener('paste', function(e) {
-      e.preventDefault();
-      return false;
-    });
-
-    // Detect DevTools
-    let devtoolsOpen = false;
-    const devtoolsDetector = setInterval(function() {
-      const widthThreshold = window.outerWidth - window.innerWidth > 160;
-      const heightThreshold = window.outerHeight - window.innerHeight > 160;
-      
-      if (widthThreshold || heightThreshold) {
-        if (!devtoolsOpen) {
-          devtoolsOpen = true;
-          triggerSecurityWarning();
-        }
-      } else {
-        devtoolsOpen = false;
-      }
-    }, 1000);
-
-    // Trigger Security Warning
-    function triggerSecurityWarning() {
-      const warningScreen = document.getElementById('securityWarning');
-      warningScreen.classList.add('active');
-      
-      // Generate fake IP
-      const fakeIP = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-      document.getElementById('ipAddress').textContent = fakeIP;
-      
-      // Get device info
-      const deviceInfo = navigator.userAgent.split('(')[1].split(')')[0];
-      document.getElementById('deviceInfo').textContent = deviceInfo;
-      
-      // Fake location
-      const locations = ['Lucknow, UP, India', 'Delhi, India', 'Mumbai, India', 'Bangalore, India'];
-      document.getElementById('locationInfo').textContent = locations[Math.floor(Math.random() * locations.length)];
-      
-      // Start countdown timer
-      startCountdown();
-      
-      // Prevent closing
-      setTimeout(() => {
-        alert('⚠️ SECURITY BREACH DETECTED!\n\n🔒 Your attempt to steal code has been logged!\n💻 System hacking initiated!\n⏰ Cannot be stopped!');
-      }, 1000);
-    }
-
-    // Countdown Timer
-    function startCountdown() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-      }
-      
-      timeLeft = 300; // Reset to 5 minutes
-      
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        
-        document.getElementById('timerDisplay').textContent = 
-          `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          document.getElementById('timerDisplay').textContent = '00:00';
-          document.getElementById('timerDisplay').innerHTML = '💀 SYSTEM HACKED! 💀';
-          
-          // Show final warning
-          setTimeout(() => {
-            alert('🚨 SYSTEM COMPLETELY COMPROMISED!\n\n💀 All data has been exposed!\n🔐 This is a security demonstration.\n\n⚠️ Do not attempt to copy protected code!');
-          }, 500);
-        }
-      }, 1000);
-    }
-
-    // Prevent Print Screen
-    document.addEventListener('keyup', function(e) {
-      if (e.key === 'PrintScreen') {
-        navigator.clipboard.writeText('');
-        triggerSecurityWarning();
-      }
-    });
-
-    // Detect if page loses focus (might be taking screenshot)
-    let screenshotAttempts = 0;
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden) {
-        screenshotAttempts++;
-        if (screenshotAttempts > 2) {
-          triggerSecurityWarning();
-        }
-      }
-    });
-
-    // ==================== FIREBASE + APPLICATION CODE ====================
-    // Replace localStorage with Firebase Firestore for global sync.
-    // TODO: Replace the firebaseConfig below with your project's config
-    let db;
-    function initFirebase() {
-      const firebaseConfig = {
-        apiKey: "AIzaSyA4DKdMB2kVHyPqO05in38P5ptC5NEdQEI",
-        authDomain: "jobalert-6291c.firebaseapp.com",
-        projectId: "jobalert-6291c",
-        storageBucket: "jobalert-6291c.firebasestorage.app",
-        messagingSenderId: "349571094976",
-        appId: "1:349571094976:web:9901dd10f523f74794d025",
-        measurementId: "G-8QC4X6HYMR"
-      };
-
-      if (!window.firebase || !firebase.apps) return;
-      try {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        loadExamsFromFirestore();
-      } catch (err) {
-        console.warn('Firebase init error (maybe already initialized):', err);
-      }
-    }
-
-    let exams = [];
-    let editIndex = -1;
-    let charts = {};
-    let currentMonth = new Date();
-
-    function loadExamsFromFirestore() {
-      if (!db) return;
-      db.collection('exams').orderBy('createdAt').onSnapshot(snapshot => {
-        exams = [];
-        snapshot.forEach(doc => exams.push(doc.data()));
-        displayExams();
-        updateDashboard();
-        updateCharts();
-        renderCalendar();
-        updateAnalytics();
-      });
-    }
-
-    function init() {
-      displayExams();
-      updateDashboard();
-      checkDeadlines();
-      setupCharts();
-      renderCalendar();
-      updateAnalytics();
-      setInterval(checkDeadlines, 60 * 60 * 1000);
-    }
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(`${tab}-tab`).classList.add('active');
-      event.target.classList.add('active');
-      
-      if (tab === 'calendar') renderCalendar();
-      if (tab === 'analytics') updateAnalytics();
-    }
-
-    function addOrUpdateExam() {
-      let exam = {
-        name: document.getElementById("examName").value.trim(),
-        notification: document.getElementById("notificationDate").value,
-        lastDate: document.getElementById("lastDate").value,
-        examDate: document.getElementById("examDate").value,
-        fee: document.getElementById("fee").value,
-        link: document.getElementById("applyLink").value.trim(),
-        category: document.getElementById("category").value,
-        priority: document.getElementById("priority").value,
-        notes: document.getElementById("notes").value.trim(),
-        applied: false,
-        appliedDate: null,
-        createdAt: new Date().toISOString()
-      };
-
-      if (!exam.name || !exam.notification || !exam.lastDate || !exam.fee || !exam.link) {
-        showNotification("Please fill all required fields!", "error");
-        return;
-      }
-
-      if (!db) {
-        showNotification('Firebase not initialized. Fill firebaseConfig and reload.', 'error');
-        return;
-      }
-
-      if (editIndex === -1) {
-        // use createdAt as document id for stable reference
-        exam.createdAt = new Date().toISOString();
-        db.collection('exams').doc(exam.createdAt).set(exam).then(() => {
-          showNotification("✅ Exam added successfully!", "success");
-        }).catch(err => showNotification('Save failed: ' + err.message, 'error'));
-      } else {
-        // editIndex corresponds to position in exams array; update based on createdAt
-        const id = exams[editIndex].createdAt;
-        db.collection('exams').doc(id).set({...exams[editIndex], ...exam}).then(() => {
-          editIndex = -1;
-          document.getElementById("submitBtn").innerHTML = "➕ Add Exam";
-          document.getElementById("formTitle").innerText = "Add New Exam";
-          showNotification("✅ Exam updated successfully!", "success");
-        }).catch(err => showNotification('Update failed: ' + err.message, 'error'));
-      }
-      clearForm();
-      displayExams();
-      updateDashboard();
-      updateCharts();
-      renderCalendar();
-      updateAnalytics();
-    }
-
-    // localStorage persistence removed; Firestore handles persistence/sync.
-    function saveExams() {
-      // kept for compatibility if needed; does nothing now.
-    }
-
-    function clearForm() {
-      document.getElementById("examName").value = "";
-      document.getElementById("notificationDate").value = "";
-      document.getElementById("lastDate").value = "";
-      document.getElementById("examDate").value = "";
-      document.getElementById("fee").value = "";
-      document.getElementById("applyLink").value = "";
-      document.getElementById("notes").value = "";
-      document.getElementById("category").value = "UPSC";
-      document.getElementById("priority").value = "Medium";
-      editIndex = -1;
-      document.getElementById("submitBtn").innerHTML = "➕ Add Exam";
-      document.getElementById("formTitle").innerText = "Add New Exam";
-    }
-
-    function editExam(index) {
-      let exam = exams[index];
-      document.getElementById("examName").value = exam.name;
-      document.getElementById("notificationDate").value = exam.notification;
-      document.getElementById("lastDate").value = exam.lastDate;
-      document.getElementById("examDate").value = exam.examDate || "";
-      document.getElementById("fee").value = exam.fee;
-      document.getElementById("applyLink").value = exam.link;
-      document.getElementById("category").value = exam.category;
-      document.getElementById("priority").value = exam.priority || "Medium";
-      document.getElementById("notes").value = exam.notes || "";
-
-      editIndex = index;
-      document.getElementById("submitBtn").innerHTML = "💾 Update Exam";
-      document.getElementById("formTitle").innerText = "Edit Exam";
-      
-      switchTab('exams');
-      document.getElementById("examName").scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function deleteExam(index) {
-      if (confirm("Are you sure you want to delete this exam?")) {
-        const id = exams[index].createdAt;
-        if (db) {
-          db.collection('exams').doc(id).delete().then(() => {
-            showNotification("🗑️ Exam deleted successfully!", "success");
-          }).catch(err => showNotification('Delete failed: ' + err.message, 'error'));
-        } else {
-          exams.splice(index, 1);
-          displayExams();
-          updateDashboard();
-          updateCharts();
-          renderCalendar();
-          updateAnalytics();
-          showNotification("🗑️ Exam deleted successfully!", "success");
-        }
-      }
-    }
-
-    function toggleApplied(index) {
-      const id = exams[index].createdAt;
-      const newVal = !exams[index].applied;
-      const appliedDate = newVal ? new Date().toISOString() : null;
-      if (db) {
-        db.collection('exams').doc(id).update({ applied: newVal, appliedDate }).then(() => {
-          showNotification(`✓ Marked as ${newVal ? 'Applied' : 'Pending'}`, "success");
-        }).catch(err => showNotification('Update failed: ' + err.message, 'error'));
-      } else {
-        exams[index].applied = newVal;
-        exams[index].appliedDate = appliedDate;
-        displayExams();
-        updateDashboard();
-        updateAnalytics();
-        showNotification(`✓ Marked as ${newVal ? 'Applied' : 'Pending'}`, "success");
-      }
-    }
-
-    function viewDetails(index) {
-      let exam = exams[index];
-      let details = `
-        <div style="line-height: 1.8;">
-          <p><strong>📝 Exam Name:</strong> ${exam.name}</p>
-          <p><strong>📂 Category:</strong> ${exam.category}</p>
-          <p><strong>⚡ Priority:</strong> ${exam.priority}</p>
-          <p><strong>📅 Notification Date:</strong> ${formatDate(exam.notification)}</p>
-          <p><strong>⏰ Last Date:</strong> ${formatDate(exam.lastDate)}</p>
-          ${exam.examDate ? `<p><strong>📆 Exam Date:</strong> ${formatDate(exam.examDate)}</p>` : ''}
-          <p><strong>💰 Fee:</strong> ₹${exam.fee}</p>
-          <p><strong>🔗 Link:</strong> <a href="${exam.link}" target="_blank">${exam.link}</a></p>
-          ${exam.notes ? `<p><strong>📌 Notes:</strong> ${exam.notes}</p>` : ''}
-          <p><strong>✅ Status:</strong> ${exam.applied ? 'Applied' : 'Pending'}</p>
-          ${exam.appliedDate ? `<p><strong>🕒 Applied On:</strong> ${formatDate(exam.appliedDate)}</p>` : ''}
-        </div>
-      `;
-      document.getElementById("examDetails").innerHTML = details;
-      document.getElementById("detailsModal").style.display = "flex";
-    }
-
-    function displayExams() {
-      let tbody = document.querySelector("#examTable tbody");
-      tbody.innerHTML = "";
-
-      let search = document.getElementById("searchBox").value.toLowerCase();
-      let categoryFilter = document.getElementById("filterCategory").value;
-      let statusFilter = document.getElementById("filterStatus").value;
-      let sortBy = document.getElementById("sortBy").value;
-
-      let filteredExams = exams.filter(exam => {
-        let matchesSearch = exam.name.toLowerCase().includes(search) || 
-                           exam.category.toLowerCase().includes(search);
-        let matchesCategory = categoryFilter === "All" || exam.category === categoryFilter;
-        
-        let matchesStatus = true;
-        if (statusFilter === "Applied") {
-          matchesStatus = exam.applied;
-        } else if (statusFilter === "Pending") {
-          matchesStatus = !exam.applied && new Date(exam.lastDate) >= new Date();
-        } else if (statusFilter === "Expired") {
-          matchesStatus = new Date(exam.lastDate) < new Date();
+    <script>
+        function goToPage(page) {
+            // Add ripple effect
+            const card = event.currentTarget;
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            
+            const rect = card.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            card.appendChild(ripple);
+            
+            // Navigate after animation
+            setTimeout(() => {
+                window.location.href = page;
+            }, 300);
         }
         
-        return matchesSearch && matchesCategory && matchesStatus;
-      });
-
-      filteredExams.sort((a, b) => {
-        if (sortBy === "name") {
-          return a.name.localeCompare(b.name);
-        } else if (sortBy === "category") {
-          return a.category.localeCompare(b.category);
-        } else if (sortBy === "priority") {
-          const priorityOrder = { High: 1, Medium: 2, Low: 3 };
-          return priorityOrder[a.priority || "Medium"] - priorityOrder[b.priority || "Medium"];
-        } else {
-          return new Date(a.lastDate) - new Date(b.lastDate);
-        }
-      });
-
-      filteredExams.forEach((exam, index) => {
-        let originalIndex = exams.findIndex(e => e.createdAt === exam.createdAt);
-        let daysLeft = Math.ceil((new Date(exam.lastDate) - new Date()) / (1000*60*60*24));
-        let daysLeftText = daysLeft < 0 ? "Expired" : `${daysLeft} days`;
-        
-        let statusClass = "";
-        let statusText = "";
-        
-        if (exam.applied) {
-          statusClass = "status-applied";
-          statusText = "Applied";
-        } else {
-          const today = new Date();
-          const lastDate = new Date(exam.lastDate);
-          
-          if (lastDate < today) {
-            statusClass = "status-expired";
-            statusText = "Expired";
-          } else {
-            statusClass = "status-pending";
-            statusText = "Pending";
-          }
-        }
-
-        let priorityColor = exam.priority === "High" ? "#f56565" : 
-                           exam.priority === "Low" ? "#48bb78" : "#ed8936";
-        
-        let row = `<tr>
-          <td><strong>${exam.name}</strong></td>
-          <td>${exam.category}</td>
-          <td>${formatDate(exam.lastDate)}</td>
-          <td><strong>${daysLeftText}</strong></td>
-          <td><span style="color: ${priorityColor}; font-weight: 600;">⬤ ${exam.priority || 'Medium'}</span></td>
-          <td>₹${exam.fee}</td>
-          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-          <td class="action-buttons">
-            <button class="action-btn" style="background: ${exam.applied ? '#ed8936' : '#48bb78'}; color: white;" onclick="toggleApplied(${originalIndex})" title="${exam.applied ? 'Mark as Pending' : 'Mark as Applied'}">
-              ${exam.applied ? "↩️" : "✓"}
-            </button>
-            <button class="action-btn" style="background: #667eea; color: white;" onclick="viewDetails(${originalIndex})" title="View Details">
-              👁️
-            </button>
-            <button class="action-btn" style="background: #4299e1; color: white;" onclick="editExam(${originalIndex})" title="Edit">
-              ✏️
-            </button>
-            <button class="action-btn" style="background: #f56565; color: white;" onclick="deleteExam(${originalIndex})" title="Delete">
-              🗑️
-            </button>
-            <a href="${exam.link}" target="_blank" class="action-btn" style="background: #9f7aea; color: white; text-decoration: none;" title="Apply Online">
-              🔗
-            </a>
-          </td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
-
-      if (filteredExams.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #718096;">No exams found. Add your first exam to get started!</td></tr>';
-      }
-    }
-
-    function formatDate(dateString) {
-      if (!dateString) return '-';
-      const options = { year: 'numeric', month: 'short', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    }
-
-    function updateDashboard() {
-      const total = exams.length;
-      const applied = exams.filter(exam => exam.applied).length;
-      const pending = exams.filter(exam => !exam.applied && new Date(exam.lastDate) >= new Date()).length;
-      
-      const today = new Date();
-      const inThreeDays = new Date();
-      inThreeDays.setDate(today.getDate() + 3);
-      
-      const urgent = exams.filter(exam => {
-        const lastDate = new Date(exam.lastDate);
-        return !exam.applied && lastDate >= today && lastDate <= inThreeDays;
-      }).length;
-
-      document.getElementById("totalExams").textContent = total;
-      document.getElementById("appliedExams").textContent = applied;
-      document.getElementById("pendingExams").textContent = pending;
-      document.getElementById("urgentExams").textContent = urgent;
-    }
-
-    function checkDeadlines() {
-      const today = new Date();
-      
-      exams.forEach(exam => {
-        if (exam.applied) return;
-        
-        const lastDate = new Date(exam.lastDate);
-        const daysLeft = Math.ceil((lastDate - today) / (1000 * 60 * 60 * 24));
-        
-        if (daysLeft === 3) {
-          showNotification(`⚠️ "${exam.name}" closes in 3 days!`, "warning");
-        } else if (daysLeft === 1) {
-          showNotification(`🚨 "${exam.name}" closes tomorrow!`, "warning");
-        } else if (daysLeft === 0) {
-          showNotification(`⏰ "${exam.name}" closes today!`, "warning");
-        }
-      });
-    }
-
-    function showNotifications() {
-      const today = new Date();
-      const inSevenDays = new Date();
-      inSevenDays.setDate(today.getDate() + 7);
-      
-      const upcomingExams = exams.filter(exam => {
-        if (exam.applied) return false;
-        const lastDate = new Date(exam.lastDate);
-        return lastDate >= today && lastDate <= inSevenDays;
-      }).sort((a, b) => new Date(a.lastDate) - new Date(b.lastDate));
-      
-      const modal = document.getElementById("notificationsModal");
-      const list = document.getElementById("notificationsList");
-      
-      if (upcomingExams.length === 0) {
-        list.innerHTML = "<p style='text-align: center; color: #718096; padding: 20px;'>✅ No urgent deadlines in the next 7 days.</p>";
-      } else {
-        list.innerHTML = "<div style='max-height: 400px; overflow-y: auto;'>";
-        upcomingExams.forEach(exam => {
-          const lastDate = new Date(exam.lastDate);
-          const daysLeft = Math.ceil((lastDate - today) / (1000 * 60 * 60 * 24));
-          let urgencyColor = daysLeft <= 1 ? '#f56565' : daysLeft <= 3 ? '#ed8936' : '#4299e1';
-          
-          list.innerHTML += `
-            <div style="padding: 15px; margin-bottom: 10px; border-left: 4px solid ${urgencyColor}; background: #f7fafc; border-radius: 8px;">
-              <div style="font-weight: 600; color: #2d3748; margin-bottom: 5px;">${exam.name}</div>
-              <div style="color: #718096; font-size: 14px;">
-                <span style="color: ${urgencyColor}; font-weight: 600;">${daysLeft} day(s) left</span> • 
-                Due: ${formatDate(exam.lastDate)} • 
-                ${exam.category}
-              </div>
-            </div>
-          `;
-        });
-        list.innerHTML += "</div>";
-      }
-      
-      modal.style.display = "flex";
-    }
-
-    function closeModal(modalId) {
-      document.getElementById(modalId).style.display = "none";
-    }
-
-    function showNotification(message, type) {
-      const notification = document.getElementById("notification");
-      const messageEl = document.getElementById("notification-message");
-      
-      messageEl.textContent = message;
-      notification.className = `notification ${type} show`;
-      
-      setTimeout(() => {
-        notification.classList.remove("show");
-      }, 4000);
-    }
-
-    function setupCharts() {
-      updateCharts();
-    }
-
-    function updateCharts() {
-      updateCategoryChart();
-      updateTimelineChart();
-      updatePriorityChart();
-      updateTrendsChart();
-    }
-
-    function updateCategoryChart() {
-      const ctx = document.getElementById('categoryChart');
-      if (!ctx) return;
-      
-      if (charts.category) charts.category.destroy();
-      
-      const categories = ["UPSC", "SSC", "State PSC", "Banking", "Railway", "Defense", "Teaching", "Other"];
-      const data = categories.map(cat => exams.filter(exam => exam.category === cat).length);
-      
-      charts.category = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: categories,
-          datasets: [{
-            data: data,
-            backgroundColor: [
-              'rgba(102, 126, 234, 0.8)',
-              'rgba(72, 187, 120, 0.8)',
-              'rgba(159, 122, 234, 0.8)',
-              'rgba(237, 137, 54, 0.8)',
-              'rgba(245, 101, 101, 0.8)',
-              'rgba(66, 153, 225, 0.8)',
-              'rgba(236, 201, 75, 0.8)',
-              'rgba(113, 128, 150, 0.8)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'right',
-            }
-          }
-        }
-      });
-    }
-
-    function updateTimelineChart() {
-      const ctx = document.getElementById('timelineChart');
-      if (!ctx) return;
-      
-      if (charts.timeline) charts.timeline.destroy();
-      
-      const months = [];
-      const appliedData = [];
-      const pendingData = [];
-      
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        const monthYear = date.toLocaleDateString('en', { month: 'short', year: '2-digit' });
-        months.push(monthYear);
-        
-        const monthExams = exams.filter(exam => {
-          const examDate = new Date(exam.notification);
-          return examDate.getMonth() === date.getMonth() && examDate.getFullYear() === date.getFullYear();
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1') goToPage('admin.html');
+            if (e.key === '2') goToPage('teacher.html');
+            if (e.key === '3') goToPage('student.html');
         });
         
-        appliedData.push(monthExams.filter(e => e.applied).length);
-        pendingData.push(monthExams.filter(e => !e.applied).length);
-      }
-      
-      charts.timeline = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: months,
-          datasets: [{
-            label: 'Applied',
-            data: appliedData,
-            borderColor: 'rgba(72, 187, 120, 1)',
-            backgroundColor: 'rgba(72, 187, 120, 0.2)',
-            tension: 0.4,
-            fill: true
-          }, {
-            label: 'Pending',
-            data: pendingData,
-            borderColor: 'rgba(237, 137, 54, 1)',
-            backgroundColor: 'rgba(237, 137, 54, 0.2)',
-            tension: 0.4,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                precision: 0
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function updatePriorityChart() {
-      const ctx = document.getElementById('priorityChart');
-      if (!ctx) return;
-      
-      if (charts.priority) charts.priority.destroy();
-      
-      const priorities = ['High', 'Medium', 'Low'];
-      const data = priorities.map(p => exams.filter(exam => (exam.priority || 'Medium') === p).length);
-      
-      charts.priority = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: priorities,
-          datasets: [{
-            label: 'Exams by Priority',
-            data: data,
-            backgroundColor: [
-              'rgba(245, 101, 101, 0.8)',
-              'rgba(237, 137, 54, 0.8)',
-              'rgba(72, 187, 120, 0.8)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                precision: 0
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function updateTrendsChart() {
-      const ctx = document.getElementById('trendsChart');
-      if (!ctx) return;
-      
-      if (charts.trends) charts.trends.destroy();
-      
-      const last6Months = [];
-      const examCounts = [];
-      
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(date.getMonth() - i);
-        const monthYear = date.toLocaleDateString('en', { month: 'short' });
-        last6Months.push(monthYear);
-        
-        const count = exams.filter(exam => {
-          const examDate = new Date(exam.notification);
-          return examDate.getMonth() === date.getMonth() && examDate.getFullYear() === date.getFullYear();
-        }).length;
-        
-        examCounts.push(count);
-      }
-      
-      charts.trends = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: last6Months,
-          datasets: [{
-            label: 'New Exams Added',
-            data: examCounts,
-            backgroundColor: 'rgba(102, 126, 234, 0.8)',
-            borderColor: 'rgba(102, 126, 234, 1)',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                precision: 0
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function renderCalendar() {
-      const container = document.getElementById('calendarContainer');
-      if (!container) return;
-      
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
-      
-      document.getElementById('currentMonth').textContent = currentMonth.toLocaleDateString('en', { month: 'long', year: 'numeric' });
-      
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      
-      let html = '<div class="calendar-grid">';
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      dayNames.forEach(day => {
-        html += `<div class="calendar-header">${day}</div>`;
-      });
-      
-      for (let i = 0; i < firstDay; i++) {
-        html += '<div class="calendar-day" style="opacity: 0.3;"></div>';
-      }
-      
-      const today = new Date();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        const isToday = date.toDateString() === today.toDateString();
-        const hasExam = exams.some(exam => {
-          const lastDate = new Date(exam.lastDate);
-          return lastDate.toDateString() === date.toDateString();
+        // Add hover sound effect (optional)
+        const cards = document.querySelectorAll('.login-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
         });
-        
-        html += `
-          <div class="calendar-day ${isToday ? 'today' : ''} ${hasExam ? 'has-exam' : ''}" onclick="showDayExams('${date.toISOString()}')">
-            <div class="day-number">${day}</div>
-            ${hasExam ? '<div class="exam-dot"></div>' : ''}
-          </div>
-        `;
-      }
-      
-      html += '</div>';
-      container.innerHTML = html;
-      
-      updateUpcomingList();
-    }
-
-    function changeMonth(delta) {
-      currentMonth.setMonth(currentMonth.getMonth() + delta);
-      renderCalendar();
-    }
-
-    function showDayExams(dateStr) {
-      const date = new Date(dateStr);
-      const dayExams = exams.filter(exam => {
-        const lastDate = new Date(exam.lastDate);
-        return lastDate.toDateString() === date.toDateString();
-      });
-      
-      if (dayExams.length === 0) return;
-      
-      let html = `<h4>Exams on ${formatDate(dateStr)}</h4><ul style="list-style: none; padding: 0;">`;
-      dayExams.forEach(exam => {
-        html += `<li style="padding: 10px; background: #f7fafc; margin-bottom: 8px; border-radius: 6px;">
-          <strong>${exam.name}</strong><br>
-          <small>${exam.category} • ${exam.applied ? '✅ Applied' : '⏳ Pending'}</small>
-        </li>`;
-      });
-      html += '</ul>';
-      
-      document.getElementById('notificationsList').innerHTML = html;
-      document.getElementById('notificationsModal').style.display = 'flex';
-    }
-
-    function updateUpcomingList() {
-      const container = document.getElementById('upcomingList');
-      if (!container) return;
-      
-      const today = new Date();
-      const upcoming = exams.filter(exam => {
-        const lastDate = new Date(exam.lastDate);
-        return lastDate >= today && !exam.applied;
-      }).sort((a, b) => new Date(a.lastDate) - new Date(b.lastDate)).slice(0, 5);
-      
-      if (upcoming.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #718096;">No upcoming deadlines</p>';
-        return;
-      }
-      
-      let html = '<ul style="list-style: none; padding: 0;">';
-      upcoming.forEach(exam => {
-        const daysLeft = Math.ceil((new Date(exam.lastDate) - today) / (1000*60*60*24));
-        html += `
-          <li style="padding: 15px; background: #f7fafc; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #667eea;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <strong>${exam.name}</strong><br>
-                <small style="color: #718096;">${exam.category} • ${formatDate(exam.lastDate)}</small>
-              </div>
-              <div style="text-align: right;">
-                <strong style="color: ${daysLeft <= 3 ? '#f56565' : '#667eea'};">${daysLeft} days</strong>
-              </div>
-            </div>
-          </li>
-        `;
-      });
-      html += '</ul>';
-      container.innerHTML = html;
-    }
-
-    function updateAnalytics() {
-      const total = exams.length;
-      const applied = exams.filter(exam => exam.applied).length;
-      const rate = total > 0 ? Math.round((applied / total) * 100) : 0;
-      
-      document.getElementById('appRate').textContent = `${rate}%`;
-      document.getElementById('appProgress').style.width = `${rate}%`;
-      
-      const totalFees = exams.reduce((sum, exam) => sum + parseFloat(exam.fee || 0), 0);
-      document.getElementById('totalInvestment').textContent = `₹${totalFees.toLocaleString()}`;
-      
-      const appliedExams = exams.filter(e => e.applied && e.appliedDate);
-      let avgDays = 0;
-      if (appliedExams.length > 0) {
-        const totalDays = appliedExams.reduce((sum, exam) => {
-          const notification = new Date(exam.notification);
-          const applied = new Date(exam.appliedDate);
-          return sum + Math.ceil((applied - notification) / (1000*60*60*24));
-        }, 0);
-        avgDays = Math.round(totalDays / appliedExams.length);
-      }
-      document.getElementById('avgDays').textContent = avgDays;
-    }
-
-    function exportToCSV() {
-      let csv = 'Exam Name,Category,Priority,Notification Date,Last Date,Exam Date,Fee,Status,Applied Date,Notes,Link\n';
-      
-      exams.forEach(exam => {
-        const status = exam.applied ? 'Applied' : 
-                      (new Date(exam.lastDate) < new Date() ? 'Expired' : 'Pending');
-        csv += `"${exam.name}","${exam.category}","${exam.priority || 'Medium'}",${exam.notification},${exam.lastDate},${exam.examDate || ''},${exam.fee},${status},${exam.appliedDate || ''},"${(exam.notes || '').replace(/"/g, '""')}",${exam.link}\n`;
-      });
-      
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `govjob_exams_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      showNotification("📊 CSV exported successfully!", "success");
-    }
-
-    function exportToPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      
-      doc.setFontSize(20);
-      doc.setTextColor(102, 126, 234);
-      doc.text('GovJob Tracker Pro', 14, 20);
-      
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 28);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(0);
-      doc.text(`Total Exams: ${exams.length}`, 14, 38);
-      doc.text(`Applied: ${exams.filter(e => e.applied).length}`, 70, 38);
-      doc.text(`Pending: ${exams.filter(e => !e.applied && new Date(e.lastDate) >= new Date()).length}`, 120, 38);
-      
-      const tableData = exams.map(exam => {
-        const daysLeft = Math.ceil((new Date(exam.lastDate) - new Date()) / (1000*60*60*24));
-        return [
-          exam.name,
-          exam.category,
-          exam.priority || 'Medium',
-          formatDate(exam.lastDate),
-          daysLeft < 0 ? 'Expired' : `${daysLeft}d`,
-          exam.applied ? 'Applied' : 'Pending',
-          `₹${exam.fee}`
-        ];
-      });
-      
-      doc.autoTable({
-        startY: 45,
-        head: [['Exam Name', 'Category', 'Priority', 'Last Date', 'Days Left', 'Status', 'Fee']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [102, 126, 234] },
-        styles: { fontSize: 8 },
-        columnStyles: {
-          0: { cellWidth: 50 },
-          1: { cellWidth: 25 },
-          2: { cellWidth: 20 },
-          3: { cellWidth: 28 },
-          4: { cellWidth: 20 },
-          5: { cellWidth: 22 },
-          6: { cellWidth: 20 }
-        }
-      });
-      
-      doc.save(`govjob_tracker_${new Date().toISOString().split('T')[0]}.pdf`);
-      showNotification("📄 PDF exported successfully!", "success");
-    }
-
-    function clearAllData() {
-      if (confirm("⚠️ Are you sure you want to delete ALL data? This cannot be undone.")) {
-        if (confirm("🚨 Final confirmation: This will permanently delete all your exam data!")) {
-          exams = [];
-          saveExams();
-          displayExams();
-          updateDashboard();
-          updateCharts();
-          renderCalendar();
-          updateAnalytics();
-          showNotification("🗑️ All data cleared successfully!", "success");
-        }
-      }
-    }
-
-    window.onload = function() { initFirebase(); init(); };
-  </script>
-
-  <!-- Bottom Menu Start -->
-<div class="bottom-menu">
-  <a href="about.html">About</a>
-  <a href="coaching.html">Coaching</a>
-  <a href="assignment.html">Assignment</a>
-</div>
-<!-- Bottom Menu End -->
-
-
-  <div id="about" class="section-box">
-  <h2>About</h2>
-  <p>Yahan apna about content add karo</p>
-</div>
-
-<div id="coaching" class="section-box">
-  <h2>Coaching</h2>
-  <p>Coaching details, batches, fees etc.</p>
-</div>
-
-<div id="assignment" class="section-box">
-  <h2>Assignment</h2>
-  <p>Assignment links yahan add honge</p>
-</div>
-
-  
+    </script>
 </body>
-
 </html>
-
