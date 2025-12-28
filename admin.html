@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCER - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f4f6;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .top-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            background: white;
+            min-height: calc(100vh - 70px);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 250px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .nav-menu li {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-menu li:hover, .nav-menu li.active {
+            background: #eff6ff;
+            border-left-color: var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .stat-card.orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .stat-card.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        
+        .pending-user {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--warning);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .approved-user {
+            border-left-color: var(--success);
+        }
+        
+        .btn-approve {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+        }
+        
+        .btn-reject {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+        }
+        
+        .category-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .notice-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .hidden { display: none; }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            padding: 10px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .badge-pending { background: var(--warning); }
+        .badge-approved { background: var(--success); }
+        .badge-rejected { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="auth-container">
+        <div class="login-card">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                <h3>Admin Login</h3>
+                <p class="text-muted">UCER Management Portal</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" id="adminEmail" class="form-control" placeholder="admin@ucer.edu.in">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" id="adminPassword" class="form-control" placeholder="Enter password">
+            </div>
+            <button class="btn btn-primary w-100" onclick="adminLogin()">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="hidden">
+        <div class="top-header">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-shield fa-2x me-3"></i>
+                        <h5 class="mb-0">UCER Admin Panel</h5>
+                    </div>
+                    <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="text-center p-4 border-bottom">
+                <i class="fas fa-user-shield fa-3x text-primary mb-2"></i>
+                <h6 class="fw-bold">Administrator</h6>
+            </div>
+            <ul class="nav-menu">
+                <li class="active" onclick="showSection('overview')">
+                    <i class="fas fa-home me-2"></i> Dashboard
+                </li>
+                <li onclick="showSection('pendingUsers')">
+                    <i class="fas fa-user-clock me-2"></i> Pending Approvals
+                </li>
+                <li onclick="showSection('allUsers')">
+                    <i class="fas fa-users me-2"></i> All Users
+                </li>
+                <li onclick="showSection('categories')">
+                    <i class="fas fa-th-list me-2"></i> Manage Categories
+                </li>
+                <li onclick="showSection('notices')">
+                    <i class="fas fa-bell me-2"></i> Notice Board
+                </li>
+                <li onclick="showSection('teachers')">
+                    <i class="fas fa-chalkboard-teacher me-2"></i> Manage Teachers
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div id="overviewSection" class="content-section">
+                <h3 class="mb-4">Dashboard Overview</h3>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card blue">
+                            <h6>Total Students</h6>
+                            <h2 id="totalStudents">0</h2>
+                            <small>Registered Users</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card orange">
+                            <h6>Pending Approvals</h6>
+                            <h2 id="pendingCount">0</h2>
+                            <small>Awaiting Review</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card green">
+                            <h6>Approved Students</h6>
+                            <h2 id="approvedCount">0</h2>
+                            <small>Active Accounts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card red">
+                            <h6>Total Teachers</h6>
+                            <h2 id="totalTeachers">0</h2>
+                            <small>Faculty Members</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-custom p-4 mt-4">
+                    <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Recent Activity</h5>
+                    <div id="recentActivity">
+                        <p class="text-muted">Loading recent activity...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Users Section -->
+            <div id="pendingUsersSection" class="content-section hidden">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Pending User Approvals</h3>
+                    <button class="btn btn-primary" onclick="refreshPendingUsers()">
+                        <i class="fas fa-sync me-2"></i>Refresh
+                    </button>
+                </div>
+                <div id="pendingUsersList">
+                    <p class="text-muted">Loading pending approvals...</p>
+                </div>
+            </div>
+
+            <!-- All Users Section -->
+            <div id="allUsersSection" class="content-section hidden">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>All Users</h3>
+                    <div>
+                        <button class="btn btn-success me-2" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button class="btn btn-danger" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="card-custom p-4">
+                    <div class="table-responsive">
+                        <table class="table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Roll No</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categoriesSection" class="content-section hidden">
+                <h3 class="mb-4">Manage Data Categories</h3>
+                <div class="card-custom p-4 mb-4">
+                    <h5 class="mb-3">Add New Category</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="text" id="newCategory" class="form-control" placeholder="Enter category name (e.g., Assignment, Quiz, Project)">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" onclick="addCategory()">
+                                <i class="fas fa-plus me-2"></i>Add Category
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-custom p-4">
+                    <h5 class="mb-3">Existing Categories</h5>
+                    <div id="categoriesList">
+                        <p class="text-muted">Loading categories...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notices Section -->
+            <div id="noticesSection" class="content-section hidden">
+                <h3 class="mb-4">Notice Board Management</h3>
+                <div class="card-custom p-4 mb-4">
+                    <h5 class="mb-3">Create New Notice</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Notice Title</label>
+                        <input type="text" id="noticeTitle" class="form-control" placeholder="Enter notice title">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notice Message</label>
+                        <textarea id="noticeMessage" class="form-control" rows="4" placeholder="Enter notice message"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Send To:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sendToStudents" checked>
+                            <label class="form-check-label" for="sendToStudents">Students</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sendToTeachers">
+                            <label class="form-check-label" for="sendToTeachers">Teachers</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendNotice()">
+                        <i class="fas fa-paper-plane me-2"></i>Send Notice
+                    </button>
+                </div>
+                <div class="card-custom p-4">
+                    <h5 class="mb-3">Recent Notices</h5>
+                    <div id="noticesList">
+                        <p class="text-muted">Loading notices...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teachers Section -->
+            <div id="teachersSection" class="content-section hidden">
+                <h3 class="mb-4">Manage Teachers</h3>
+                <div class="card-custom p-4 mb-4">
+                    <h5 class="mb-3">Add New Teacher</h5>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Teacher will receive login credentials via the system. Default password format: Teacher@[name]
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Teacher Name</label>
+                            <input type="text" id="teacherName" class="form-control" placeholder="Full name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="teacherEmail" class="form-control" placeholder="teacher@ucer.edu.in">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="teacherPassword" class="form-control" placeholder="Create password (min 6 characters)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Subject</label>
+                            <input type="text" id="teacherSubject" class="form-control" placeholder="Subject taught">
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary" onclick="addTeacher()">
+                                <i class="fas fa-user-plus me-2"></i>Add Teacher
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-custom p-4">
+                    <h5 class="mb-3">All Teachers</h5>
+                    <div id="teachersList">
+                        <p class="text-muted">Loading teachers...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXqTbhXT9ukSdUwPhnzx4eg5defskav1g",
+            authDomain: "raju2026-8a919.firebaseapp.com",
+            databaseURL: "https://raju2026-8a919-default-rtdb.firebaseio.com",
+            projectId: "raju2026-8a919",
+            storageBucket: "raju2026-8a919.firebasestorage.app",
+            messagingSenderId: "402120969254",
+            appId: "1:402120969254:web:6e945192c1053ff7b66ae7"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        window.adminLogin = async function() {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (!email || !password) {
+                alert('Please enter credentials');
+                return;
+            }
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const adminRef = ref(db, 'admins/' + userCredential.user.uid);
+                const snapshot = await get(adminRef);
+                
+                if (snapshot.exists() && snapshot.val().role === 'admin') {
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    loadDashboard();
+                } else {
+                    alert('Unauthorized access!');
+                    await signOut(auth);
+                }
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        };
+        
+        window.showSection = function(section) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const sectionMap = {
+                'overview': 'overviewSection',
+                'pendingUsers': 'pendingUsersSection',
+                'allUsers': 'allUsersSection',
+                'categories': 'categoriesSection',
+                'notices': 'noticesSection',
+                'teachers': 'teachersSection'
+            };
+            
+            document.getElementById(sectionMap[section]).classList.remove('hidden');
+            
+            if (section === 'pendingUsers') loadPendingUsers();
+            if (section === 'allUsers') loadAllUsers();
+            if (section === 'categories') loadCategories();
+            if (section === 'notices') loadNotices();
+            if (section === 'teachers') loadTeachers();
+        };
+        
+        function loadDashboard() {
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    let total = 0, pending = 0, approved = 0;
+                    
+                    Object.values(users).forEach(user => {
+                        if (user.role === 'student') {
+                            total++;
+                            if (user.status === 'pending') pending++;
+                            if (user.status === 'approved') approved++;
+                        }
+                    });
+                    
+                    document.getElementById('totalStudents').textContent = total;
+                    document.getElementById('pendingCount').textContent = pending;
+                    document.getElementById('approvedCount').textContent = approved;
+                }
+            });
+            
+            const teachersRef = ref(db, 'teachers');
+            onValue(teachersRef, (snapshot) => {
+                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                document.getElementById('totalTeachers').textContent = count;
+            });
+            
+            loadPendingUsers();
+        }
+        
+        function loadPendingUsers() {
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, (snapshot) => {
+                const container = document.getElementById('pendingUsersList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    let hasPending = false;
+                    
+                    Object.keys(users).forEach(uid => {
+                        const user = users[uid];
+                        if (user.role === 'student' && user.status === 'pending') {
+                            hasPending = true;
+                            container.innerHTML += `
+                                <div class="pending-user">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">${user.name}</h6>
+                                            <small class="text-muted">${user.email}</small>
+                                            <p class="mb-0 mt-1"><strong>Phone:</strong> ${user.phone}</p>
+                                        </div>
+                                        <div>
+                                            <input type="text" id="roll_${uid}" class="form-control form-control-sm mb-2" placeholder="Assign Roll No" style="width: 150px;">
+                                            <button class="btn btn-approve btn-sm me-2" onclick="approveUser('${uid}')">
+                                                <i class="fas fa-check me-1"></i>Approve
+                                            </button>
+                                            <button class="btn btn-reject btn-sm" onclick="rejectUser('${uid}')">
+                                                <i class="fas fa-times me-1"></i>Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    if (!hasPending) {
+                        container.innerHTML = '<p class="text-muted text-center">No pending approvals</p>';
+                    }
+                } else {
+                    container.innerHTML = '<p class="text-muted text-center">No users found</p>';
+                }
+            });
+        }
+        
+        window.approveUser = async function(uid) {
+            const rollNo = document.getElementById(`roll_${uid}`).value;
+            if (!rollNo) {
+                alert('Please enter roll number');
+                return;
+            }
+            
+            try {
+                await update(ref(db, 'users/' + uid), {
+                    status: 'approved',
+                    rollNumber: rollNo,
+                    approvedAt: new Date().toISOString()
+                });
+                alert('User approved successfully!');
+                loadPendingUsers();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+        
+        window.rejectUser = async function(uid) {
+            if (confirm('Are you sure you want to reject this user?')) {
+                try {
+                    await remove(ref(db, 'users/' + uid));
+                    alert('User rejected');
+                    loadPendingUsers();
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        };
+        
+        function loadAllUsers() {
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, (snapshot) => {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    Object.keys(users).forEach(uid => {
+                        const user = users[uid];
+                        if (user.role === 'student') {
+                            const statusBadge = user.status === 'approved' ? 'badge-approved' : 'badge-pending';
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${user.name}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.phone || 'N/A'}</td>
+                                    <td>${user.rollNumber || 'Not Assigned'}</td>
+                                    <td><span class="badge ${statusBadge}">${user.status || 'pending'}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteUser('${uid}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    });
+                }
+            });
+        }
+        
+        window.deleteUser = async function(uid) {
+            if (confirm('Delete this user permanently?')) {
+                await remove(ref(db, 'users/' + uid));
+                alert('User deleted');
+                loadAllUsers();
+            }
+        };
+        
+        window.addCategory = async function() {
+            const category = document.getElementById('newCategory').value;
+            if (!category) {
+                alert('Enter category name');
+                return;
+            }
+            
+            const categoryId = Date.now().toString();
+            await set(ref(db, 'categories/' + categoryId), {
+                name: category,
+                createdAt: new Date().toISOString()
+            });
+            
+            document.getElementById('newCategory').value = '';
+            alert('Category added!');
+            loadCategories();
+        };
+        
+        function loadCategories() {
+            const categoriesRef = ref(db, 'categories');
+            onValue(categoriesRef, (snapshot) => {
+                const container = document.getElementById('categoriesList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const categories = snapshot.val();
+                    Object.keys(categories).forEach(id => {
+                        const cat = categories[id];
+                        container.innerHTML += `
+                            <div class="category-item">
+                                <span><i class="fas fa-tag me-2"></i>${cat.name}</span>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCategory('${id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-muted">No categories yet</p>';
+                }
+            });
+        }
+        
+        window.deleteCategory = async function(id) {
+            if (confirm('Delete this category?')) {
+                await remove(ref(db, 'categories/' + id));
+                loadCategories();
+            }
+        };
+        
+        window.sendNotice = async function() {
+            const title = document.getElementById('noticeTitle').value;
+            const message = document.getElementById('noticeMessage').value;
+            const toStudents = document.getElementById('sendToStudents').checked;
+            const toTeachers = document.getElementById('sendToTeachers').checked;
+            
+            if (!title || !message) {
+                alert('Fill all fields');
+                return;
+            }
+            
+            const noticeId = Date.now().toString();
+            await set(ref(db, 'notices/' + noticeId), {
+                title, message,
+                toStudents, toTeachers,
+                createdAt: new Date().toISOString()
+            });
+            
+            document.getElementById('noticeTitle').value = '';
+            document.getElementById('noticeMessage').value = '';
+            alert('Notice sent!');
+            loadNotices();
+        };
+        
+        function loadNotices() {
+            const noticesRef = ref(db, 'notices');
+            onValue(noticesRef, (snapshot) => {
+                const container = document.getElementById('noticesList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const notices = snapshot.val();
+                    Object.keys(notices).reverse().forEach(id => {
+                        const notice = notices[id];
+                        const recipients = [];
+                        if (notice.toStudents) recipients.push('Students');
+                        if (notice.toTeachers) recipients.push('Teachers');
+                        
+                        container.innerHTML += `
+                            <div class="notice-item">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h6>${notice.title}</h6>
+                                        <p class="mb-2">${notice.message}</p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-users me-1"></i>${recipients.join(', ')} | 
+                                            ${new Date(notice.createdAt).toLocaleDateString()}
+                                        </small>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteNotice('${id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-muted">No notices yet</p>';
+                }
+            });
+        }
+        
+        window.deleteNotice = async function(id) {
+            if (confirm('Delete this notice?')) {
+                await remove(ref(db, 'notices/' + id));
+                loadNotices();
+            }
+        };
+        
+        // UPDATED: Teacher add using Firebase REST API
+        window.addTeacher = async function() {
+            const name = document.getElementById('teacherName').value;
+            const email = document.getElementById('teacherEmail').value;
+            const password = document.getElementById('teacherPassword').value;
+            const subject = document.getElementById('teacherSubject').value;
+            
+            if (!name || !email || !password || !subject) {
+                alert('Fill all fields');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                // Create user using Firebase REST API
+                const apiKey = firebaseConfig.apiKey;
+                const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        returnSecureToken: true
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error creating teacher: ' + data.error.message);
+                    return;
+                }
+                
+                const teacherId = data.localId;
+                
+                // Add teacher data to database
+                await set(ref(db, 'teachers/' + teacherId), {
+                    name: name,
+                    email: email,
+                    subject: subject,
+                    createdAt: new Date().toISOString()
+                });
+                
+                // Clear form
+                document.getElementById('teacherName').value = '';
+                document.getElementById('teacherEmail').value = '';
+                document.getElementById('teacherPassword').value = '';
+                document.getElementById('teacherSubject').value = '';
+                
+                alert('Teacher added successfully!\n\nLogin Credentials:\nEmail: ' + email + '\nPassword: ' + password);
+                loadTeachers();
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+        
+        function loadTeachers() {
+            const teachersRef = ref(db, 'teachers');
+            onValue(teachersRef, (snapshot) => {
+                const container = document.getElementById('teachersList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const teachers = snapshot.val();
+                    Object.keys(teachers).forEach(id => {
+                        const teacher = teachers[id];
+                        container.innerHTML += `
+                            <div class="pending-user approved-user">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">${teacher.name}</h6>
+                                        <small class="text-muted">${teacher.email}</small>
+                                        <p class="mb-0 mt-1"><strong>Subject:</strong> ${teacher.subject}</p>
+                                    </div>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${id}')">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    container.innerHTML = '<p class="text-muted text-center">No teachers found</p>';
+                }
+            });
+        }
+        
+        // UPDATED: Delete teacher from both Authentication and Database
+        window.deleteTeacher = async function(id) {
+            if (!confirm('Delete this teacher? This will remove their login access.')) {
+                return;
+            }
+            
+            try {
+                // Get teacher email first
+                const teacherRef = ref(db, 'teachers/' + id);
+                const snapshot = await get(teacherRef);
+                
+                if (snapshot.exists()) {
+                    const teacherEmail = snapshot.val().email;
+                    
+                    // Remove from database
+                    await remove(teacherRef);
+                    
+                    alert('Teacher removed from database. Note: Authentication account needs to be removed manually from Firebase Console > Authentication > Users');
+                    loadTeachers();
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+        
+        window.exportToExcel = function() {
+            const table = document.getElementById('usersTable');
+            let csv = [];
+            
+            for (let row of table.rows) {
+                let rowData = [];
+                for (let cell of row.cells) {
+                    rowData.push(cell.textContent);
+                }
+                csv.push(rowData.join(','));
+            }
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'students_data.csv';
+            a.click();
+        };
+        
+        window.exportToPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text('UCER - Students Report', 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+            
+            const table = document.getElementById('usersTable');
+            const rows = [];
+            
+            for (let i = 1; i < table.rows.length; i++) {
+                const row = [];
+                for (let j = 0; j < table.rows[i].cells.length - 1; j++) {
+                    row.push(table.rows[i].cells[j].textContent);
+                }
+                rows.push(row);
+            }
+            
+            doc.autoTable({
+                head: [['Name', 'Email', 'Phone', 'Roll No', 'Status']],
+                body: rows,
+                startY: 35
+            });
+            
+            doc.save('students_report.pdf');
+        };
+        
+        window.refreshPendingUsers = loadPendingUsers;
+        
+        window.logout = async function() {
+            await signOut(auth);
+            location.reload();
+        };
+    </script>
+</body>
+</html>
