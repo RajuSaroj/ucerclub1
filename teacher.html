@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UCER - Teacher Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 20px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 12px 40px;
+            border-radius: 25px;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        
+        .dashboard-container {
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        
+        .top-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar {
+            background: white;
+            min-height: calc(100vh - 70px);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 250px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .nav-menu li {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-menu li:hover, .nav-menu li.active {
+            background: #eff6ff;
+            border-left-color: var(--secondary);
+            color: var(--secondary);
+        }
+        
+        .card-custom {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .student-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .badge-approved { background: var(--success); }
+        .badge-pending { background: var(--warning); }
+        
+        .category-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .category-display {
+            background: #f9fafb;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .hidden { display: none; }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="auth-container">
+        <div class="login-card">
+            <div class="text-center mb-4">
+                <i class="fas fa-chalkboard-teacher fa-3x text-primary mb-3"></i>
+                <h3>Teacher Login</h3>
+                <p class="text-muted">UCER Faculty Portal</p>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" id="teacherEmail" class="form-control" placeholder="teacher@ucer.edu.in">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" id="teacherPassword" class="form-control" placeholder="Enter password">
+            </div>
+            <button class="btn btn-primary" onclick="teacherLogin()">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Teacher Dashboard -->
+    <div id="teacherDashboard" class="dashboard-container hidden">
+        <div class="top-header">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-chalkboard-teacher fa-2x me-3"></i>
+                        <h5 class="mb-0">UCER - Teacher Portal</h5>
+                    </div>
+                    <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="text-center p-4 border-bottom">
+                <i class="fas fa-user-tie fa-3x text-primary mb-2"></i>
+                <h6 class="fw-bold" id="teacherName">Teacher</h6>
+                <small class="text-muted" id="teacherSubject">Subject</small>
+            </div>
+            <ul class="nav-menu">
+                <li class="active" onclick="showSection('overview')">
+                    <i class="fas fa-home me-2"></i> Overview
+                </li>
+                <li onclick="showSection('updateStudent')">
+                    <i class="fas fa-edit me-2"></i> Update Student
+                </li>
+                <li onclick="showSection('allStudents')">
+                    <i class="fas fa-users me-2"></i> All Students
+                </li>
+                <li onclick="showSection('categories')">
+                    <i class="fas fa-th-list me-2"></i> Manage Categories
+                </li>
+                <li onclick="showSection('notices')">
+                    <i class="fas fa-bell me-2"></i> Notices
+                </li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <!-- Overview Section -->
+            <div id="overviewSection" class="section-content">
+                <h3 class="mb-4">Dashboard Overview</h3>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <h2 id="totalStudentsCount">0</h2>
+                            <p class="mb-0">Total Students</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <h2 id="approvedStudentsCount">0</h2>
+                            <p class="mb-0">Approved Students</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <h2 id="categoriesCount">0</h2>
+                            <p class="mb-0">Active Categories</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-custom">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Quick Actions</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-primary" onclick="showSection('updateStudent')">
+                            <i class="fas fa-edit me-2"></i>Update Student Data
+                        </button>
+                        <button class="btn btn-success" onclick="showSection('categories')">
+                            <i class="fas fa-plus me-2"></i>Add Categories
+                        </button>
+                        <button class="btn btn-info text-white" onclick="showSection('allStudents')">
+                            <i class="fas fa-list me-2"></i>View All Students
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Student Section -->
+            <div id="updateStudentSection" class="section-content hidden">
+                <h3 class="mb-4"><i class="fas fa-edit me-2"></i>Update Student Data</h3>
+                
+                <div class="card-custom mb-4">
+                    <h5 class="mb-3">Search Student</h5>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Student Email or Roll Number</label>
+                            <input type="text" id="searchStudent" class="form-control" placeholder="Enter email or roll number">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-primary w-100" onclick="searchStudent()">
+                                <i class="fas fa-search me-2"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="studentUpdateForm" class="card-custom hidden">
+                    <h5 class="mb-3">Update Student Information</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Student Name</label>
+                            <input type="text" id="updateStudentName" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Roll Number</label>
+                            <input type="text" id="updateStudentRoll" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Attendance (%)</label>
+                            <input type="number" id="updateAttendance" class="form-control" placeholder="0-100" min="0" max="100">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Fee Status</label>
+                            <select id="updateFeeStatus" class="form-select">
+                                <option value="">Select Status</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Partial">Partial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <button class="btn btn-success w-100" onclick="updateBasicInfo()">
+                                <i class="fas fa-save me-2"></i>Update Basic Info
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="mb-3">Category-wise Scores</h5>
+                    <div id="categoryInputs">
+                        <p class="text-muted">Please add categories first from the Manage Categories section</p>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="updateCategoryScores()">
+                        <i class="fas fa-save me-2"></i>Update All Category Scores
+                    </button>
+                </div>
+            </div>
+
+            <!-- All Students Section -->
+            <div id="allStudentsSection" class="section-content hidden">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>All Students</h3>
+                    <div>
+                        <button class="btn btn-success me-2" onclick="exportAllToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button class="btn btn-danger" onclick="exportAllToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
+                </div>
+                <div id="studentsList">
+                    <p class="text-muted">Loading students...</p>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div id="categoriesSection" class="section-content hidden">
+                <h3 class="mb-4"><i class="fas fa-th-list me-2"></i>Manage Categories</h3>
+                
+                <div class="card-custom">
+                    <h5 class="mb-3">Available Categories</h5>
+                    <p class="text-muted small">Categories are managed by admin. These will appear automatically once admin adds them.</p>
+                    <div id="categoriesList">
+                        <p class="text-muted">Loading categories...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notices Section -->
+            <div id="noticesSection" class="section-content hidden">
+                <h3 class="mb-4"><i class="fas fa-bell me-2"></i>Notices for Teachers</h3>
+                <div id="teacherNoticesList">
+                    <p class="text-muted">Loading notices...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXqTbhXT9ukSdUwPhnzx4eg5defskav1g",
+            authDomain: "raju2026-8a919.firebaseapp.com",
+            databaseURL: "https://raju2026-8a919-default-rtdb.firebaseio.com",
+            projectId: "raju2026-8a919",
+            storageBucket: "raju2026-8a919.firebasestorage.app",
+            messagingSenderId: "402120969254",
+            appId: "1:402120969254:web:6e945192c1053ff7b66ae7"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        
+        let currentTeacherData = null;
+        let currentStudentUid = null;
+        let categoriesData = {};
+        
+        window.teacherLogin = async function() {
+            const email = document.getElementById('teacherEmail').value;
+            const password = document.getElementById('teacherPassword').value;
+            
+            if (!email || !password) {
+                alert('Please enter credentials');
+                return;
+            }
+            
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const teacherRef = ref(db, 'teachers/' + userCredential.user.uid);
+                const snapshot = await get(teacherRef);
+                
+                if (snapshot.exists()) {
+                    currentTeacherData = { uid: userCredential.user.uid, ...snapshot.val() };
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('teacherDashboard').classList.remove('hidden');
+                    loadTeacherDashboard();
+                } else {
+                    alert('Not authorized as teacher');
+                    await signOut(auth);
+                }
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        };
+        
+        function loadTeacherDashboard() {
+            document.getElementById('teacherName').textContent = currentTeacherData.name;
+            document.getElementById('teacherSubject').textContent = currentTeacherData.subject;
+            
+            loadOverviewStats();
+            loadAllStudents();
+            loadCategories();
+            loadNotices();
+        }
+        
+        function loadOverviewStats() {
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    let total = 0, approved = 0;
+                    
+                    Object.values(users).forEach(user => {
+                        if (user.role === 'student') {
+                            total++;
+                            if (user.status === 'approved') approved++;
+                        }
+                    });
+                    
+                    document.getElementById('totalStudentsCount').textContent = total;
+                    document.getElementById('approvedStudentsCount').textContent = approved;
+                }
+            });
+            
+            const categoriesRef = ref(db, 'categories');
+            onValue(categoriesRef, (snapshot) => {
+                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                document.getElementById('categoriesCount').textContent = count;
+            });
+        }
+        
+        window.showSection = function(section) {
+            document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const sectionMap = {
+                'overview': 'overviewSection',
+                'updateStudent': 'updateStudentSection',
+                'allStudents': 'allStudentsSection',
+                'categories': 'categoriesSection',
+                'notices': 'noticesSection'
+            };
+            
+            document.getElementById(sectionMap[section]).classList.remove('hidden');
+            
+            if (section === 'allStudents') loadAllStudents();
+            if (section === 'categories') loadCategories();
+            if (section === 'notices') loadNotices();
+        };
+        
+        window.searchStudent = async function() {
+            const searchTerm = document.getElementById('searchStudent').value.trim().toLowerCase();
+            if (!searchTerm) {
+                alert('Please enter email or roll number');
+                return;
+            }
+            
+            const usersRef = ref(db, 'users');
+            const snapshot = await get(usersRef);
+            
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                let found = false;
+                
+                for (let uid in users) {
+                    const user = users[uid];
+                    if (user.role === 'student' && 
+                        (user.email.toLowerCase() === searchTerm || 
+                         (user.rollNumber && user.rollNumber.toLowerCase() === searchTerm))) {
+                        found = true;
+                        currentStudentUid = uid;
+                        displayStudentUpdateForm(uid, user);
+                        break;
+                    }
+                }
+                
+                if (!found) {
+                    alert('Student not found');
+                }
+            }
+        };
+        
+        async function displayStudentUpdateForm(uid, userData) {
+            document.getElementById('studentUpdateForm').classList.remove('hidden');
+            document.getElementById('updateStudentName').value = userData.name;
+            document.getElementById('updateStudentRoll').value = userData.rollNumber || 'Not Assigned';
+            
+            const studentDataRef = ref(db, 'studentData/' + uid);
+            const dataSnapshot = await get(studentDataRef);
+            
+            if (dataSnapshot.exists()) {
+                const data = dataSnapshot.val();
+                document.getElementById('updateAttendance').value = data.attendance || '';
+                document.getElementById('updateFeeStatus').value = data.feeStatus || '';
+            }
+            
+            displayCategoryInputs(uid);
+        }
+        
+        async function displayCategoryInputs(uid) {
+            const categoriesRef = ref(db, 'categories');
+            const snapshot = await get(categoriesRef);
+            
+            const container = document.getElementById('categoryInputs');
+            container.innerHTML = '';
+            
+            if (snapshot.exists()) {
+                categoriesData = snapshot.val();
+                const studentDataRef = ref(db, 'studentData/' + uid);
+                const dataSnapshot = await get(studentDataRef);
+                const existingData = dataSnapshot.exists() ? dataSnapshot.val().categories || {} : {};
+                
+                for (let catId in categoriesData) {
+                    const category = categoriesData[catId];
+                    const currentValue = existingData[category.name] || '';
+                    
+                    container.innerHTML += `
+                        <div class="category-input">
+                            <input type="text" class="form-control" value="${category.name}" readonly style="flex: 1;">
+                            <input type="text" id="cat_${catId}" class="form-control" value="${currentValue}" 
+                                   placeholder="Enter score/status" style="flex: 1;">
+                        </div>
+                    `;
+                }
+            } else {
+                container.innerHTML = '<p class="text-muted">No categories available. Admin needs to add categories first.</p>';
+            }
+        }
+        
+        window.updateBasicInfo = async function() {
+            if (!currentStudentUid) {
+                alert('Please search for a student first');
+                return;
+            }
+            
+            const attendance = document.getElementById('updateAttendance').value;
+            const feeStatus = document.getElementById('updateFeeStatus').value;
+            
+            try {
+                const updates = {};
+                if (attendance) updates.attendance = parseFloat(attendance);
+                if (feeStatus) updates.feeStatus = feeStatus;
+                
+                await update(ref(db, 'studentData/' + currentStudentUid), updates);
+                alert('Basic information updated successfully!');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+        
+        window.updateCategoryScores = async function() {
+            if (!currentStudentUid) {
+                alert('Please search for a student first');
+                return;
+            }
+            
+            const categories = {};
+            for (let catId in categoriesData) {
+                const input = document.getElementById('cat_' + catId);
+                if (input && input.value) {
+                    categories[categoriesData[catId].name] = input.value;
+                }
+            }
+            
+            try {
+                await update(ref(db, 'studentData/' + currentStudentUid), { categories });
+                alert('Category scores updated successfully!');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        };
+        
+        function loadAllStudents() {
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, async (snapshot) => {
+                const container = document.getElementById('studentsList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    
+                    for (let uid in users) {
+                        const user = users[uid];
+                        if (user.role === 'student') {
+                            const dataRef = ref(db, 'studentData/' + uid);
+                            const dataSnapshot = await get(dataRef);
+                            const studentData = dataSnapshot.exists() ? dataSnapshot.val() : {};
+                            
+                            const statusBadge = user.status === 'approved' ? 'badge-approved' : 'badge-pending';
+                            
+                            let categoriesHTML = '';
+                            if (studentData.categories) {
+                                for (let cat in studentData.categories) {
+                                    categoriesHTML += `<span class="badge bg-info me-1">${cat}: ${studentData.categories[cat]}</span>`;
+                                }
+                            }
+                            
+                            container.innerHTML += `
+                                <div class="student-card">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1">${user.name}</h6>
+                                            <small class="text-muted">${user.email}</small>
+                                        </div>
+                                        <span class="badge ${statusBadge}">${user.status || 'pending'}</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong>Roll:</strong> ${user.rollNumber || 'Not Assigned'} | 
+                                        <strong>Phone:</strong> ${user.phone || 'N/A'} | 
+                                        <strong>Attendance:</strong> ${studentData.attendance || 0}% | 
+                                        <strong>Fee:</strong> ${studentData.feeStatus || 'N/A'}
+                                    </div>
+                                    ${categoriesHTML ? `<div class="mt-2">${categoriesHTML}</div>` : ''}
+                                </div>
+                            `;
+                        }
+                    }
+                } else {
+                    container.innerHTML = '<p class="text-muted">No students found</p>';
+                }
+            });
+        }
+        
+        function loadCategories() {
+            const categoriesRef = ref(db, 'categories');
+            onValue(categoriesRef, (snapshot) => {
+                const container = document.getElementById('categoriesList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const categories = snapshot.val();
+                    for (let id in categories) {
+                        container.innerHTML += `
+                            <div class="category-display">
+                                <span><i class="fas fa-tag me-2"></i>${categories[id].name}</span>
+                                <small class="text-muted">Active</small>
+                            </div>
+                        `;
+                    }
+                } else {
+                    container.innerHTML = '<p class="text-muted">No categories available yet</p>';
+                }
+            });
+        }
+        
+        function loadNotices() {
+            const noticesRef = ref(db, 'notices');
+            onValue(noticesRef, (snapshot) => {
+                const container = document.getElementById('teacherNoticesList');
+                container.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const notices = snapshot.val();
+                    let hasNotices = false;
+                    
+                    Object.keys(notices).reverse().forEach(id => {
+                        const notice = notices[id];
+                        if (notice.toTeachers) {
+                            hasNotices = true;
+                            container.innerHTML += `
+                                <div class="card-custom">
+                                    <h6><i class="fas fa-bullhorn me-2"></i>${notice.title}</h6>
+                                    <p class="mb-2">${notice.message}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>${new Date(notice.createdAt).toLocaleString()}
+                                    </small>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    if (!hasNotices) {
+                        container.innerHTML = '<p class="text-muted">No notices available</p>';
+                    }
+                } else {
+                    container.innerHTML = '<p class="text-muted">No notices available</p>';
+                }
+            });
+        }
+        
+        window.exportAllToExcel = async function() {
+            const usersRef = ref(db, 'users');
+            const snapshot = await get(usersRef);
+            
+            let csv = 'Name,Email,Phone,Roll No,Status,Attendance,Fee Status\n';
+            
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                for (let uid in users) {
+                    const user = users[uid];
+                    if (user.role === 'student') {
+                        const dataRef = ref(db, 'studentData/' + uid);
+                        const dataSnapshot = await get(dataRef);
+                        const data = dataSnapshot.exists() ? dataSnapshot.val() : {};
+                        
+                        csv += `${user.name},${user.email},${user.phone || 'N/A'},${user.rollNumber || 'N/A'},${user.status || 'pending'},${data.attendance || 0},${data.feeStatus || 'N/A'}\n`;
+                    }
+                }
+            }
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'all_students_data.csv';
+            a.click();
+        };
+        
+        window.exportAllToPDF = async function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text('UCER - Students Report', 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Teacher: ${currentTeacherData.name}`, 14, 30);
+            doc.text(`Subject: ${currentTeacherData.subject}`, 14, 36);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 42);
+            
+            const usersRef = ref(db, 'users');
+            const snapshot = await get(usersRef);
+            const rows = [];
+            
+            if (snapshot.exists()) {
+                const users = snapshot.val();
+                for (let uid in users) {
+                    const user = users[uid];
+                    if (user.role === 'student') {
+                        const dataRef = ref(db, 'studentData/' + uid);
+                        const dataSnapshot = await get(dataRef);
+                        const data = dataSnapshot.exists() ? dataSnapshot.val() : {};
+                        
+                        rows.push([
+                            user.name,
+                            user.rollNumber || 'N/A',
+                            user.email,
+                            `${data.attendance || 0}%`,
+                            data.feeStatus || 'N/A'
+                        ]);
+                    }
+                }
+            }
+            
+            doc.autoTable({
+                head: [['Name', 'Roll No', 'Email', 'Attendance', 'Fee Status']],
+                body: rows,
+                startY: 48
+            });
+            
+            doc.save('students_report.pdf');
+        };
+        
+        window.logout = async function() {
+            await signOut(auth);
+            location.reload();
+        };
+    </script>
+</body>
+</html>
