@@ -37,6 +37,41 @@
             padding: 40px;
         }
         
+        .forgot-password-link {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        
+        .forgot-password-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-to-login {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-to-login a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--success);
+        }
+        
         .top-header {
             background: var(--primary);
             color: white;
@@ -185,17 +220,44 @@
                 <h3>Admin Login</h3>
                 <p class="text-muted">UCER Management Portal</p>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" id="adminEmail" class="form-control" placeholder="admin@ucer.edu.in">
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="adminEmail" class="form-control" placeholder="admin@ucer.edu.in">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="Enter password">
+                </div>
+                <div class="forgot-password-link">
+                    <a href="#" onclick="showForgotPassword(); return false;">Forgot Password?</a>
+                </div>
+                <button class="btn btn-primary w-100" onclick="adminLogin()">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" id="adminPassword" class="form-control" placeholder="Enter password">
+            
+            <!-- Forgot Password Form -->
+            <div id="forgotPasswordForm" class="hidden">
+                <div id="successMessage" class="success-message hidden">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Password reset email bhej di gayi hai!</strong>
+                    <p class="mb-0 mt-2">Apni email check karein aur link pe click karke password reset karein.</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="resetEmail" class="form-control" placeholder="Enter your email">
+                    <small class="text-muted">Aapko password reset link email par milega</small>
+                </div>
+                <button class="btn btn-primary w-100" onclick="sendPasswordReset()">
+                    <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                </button>
+                <div class="back-to-login">
+                    <a href="#" onclick="showLogin(); return false;"><i class="fas fa-arrow-left me-2"></i>Back to Login</a>
+                </div>
             </div>
-            <button class="btn btn-primary w-100" onclick="adminLogin()">
-                <i class="fas fa-sign-in-alt me-2"></i>Login
-            </button>
         </div>
     </div>
 
@@ -399,7 +461,7 @@
                     <h5 class="mb-3">Add New Teacher</h5>
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Note:</strong> Teacher will receive login credentials via the system. Default password format: Teacher@[name]
+                        <strong>Note:</strong> Password minimum 6 characters ka hona chahiye
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -440,7 +502,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
         
         const firebaseConfig = {
@@ -457,6 +519,51 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
         
+        // Forgot Password Functions
+        window.showForgotPassword = function() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('forgotPasswordForm').classList.remove('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+        };
+        
+        window.showLogin = function() {
+            document.getElementById('forgotPasswordForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        };
+        
+        window.sendPasswordReset = async function() {
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!email) {
+                alert('Email address enter karein!');
+                return;
+            }
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                document.getElementById('successMessage').classList.remove('hidden');
+                document.getElementById('resetEmail').value = '';
+                
+                setTimeout(() => {
+                    showLogin();
+                }, 10000);
+                
+            } catch (error) {
+                let errorMsg = 'Error: ';
+                if (error.code === 'auth/user-not-found') {
+                    errorMsg = 'Ye email registered nahi hai!';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Invalid email address!';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg = 'Bahut zyada requests! Thodi der baad try karein.';
+                } else {
+                    errorMsg += error.message;
+                }
+                alert(errorMsg);
+            }
+        };
+        
+        // Admin Login
         window.adminLogin = async function() {
             const email = document.getElementById('adminEmail').value;
             const password = document.getElementById('adminPassword').value;
@@ -774,7 +881,7 @@
             }
         };
         
-        // UPDATED: Teacher add using Firebase REST API
+        // Teacher add using Firebase REST API
         window.addTeacher = async function() {
             const name = document.getElementById('teacherName').value;
             const email = document.getElementById('teacherEmail').value;
@@ -782,17 +889,16 @@
             const subject = document.getElementById('teacherSubject').value;
             
             if (!name || !email || !password || !subject) {
-                alert('Fill all fields');
+                alert('Sabhi fields bharna zaroori hai!');
                 return;
             }
             
             if (password.length < 6) {
-                alert('Password must be at least 6 characters');
+                alert('Password kam se kam 6 characters ka hona chahiye!');
                 return;
             }
             
             try {
-                // Create user using Firebase REST API
                 const apiKey = firebaseConfig.apiKey;
                 const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
                     method: 'POST',
@@ -809,13 +915,12 @@
                 const data = await response.json();
                 
                 if (data.error) {
-                    alert('Error creating teacher: ' + data.error.message);
+                    alert('Error: ' + data.error.message);
                     return;
                 }
                 
                 const teacherId = data.localId;
                 
-                // Add teacher data to database
                 await set(ref(db, 'teachers/' + teacherId), {
                     name: name,
                     email: email,
@@ -823,13 +928,12 @@
                     createdAt: new Date().toISOString()
                 });
                 
-                // Clear form
                 document.getElementById('teacherName').value = '';
                 document.getElementById('teacherEmail').value = '';
                 document.getElementById('teacherPassword').value = '';
                 document.getElementById('teacherSubject').value = '';
                 
-                alert('Teacher added successfully!\n\nLogin Credentials:\nEmail: ' + email + '\nPassword: ' + password);
+                alert('Teacher successfully add ho gaya!\n\nLogin Credentials:\nEmail: ' + email + '\nPassword: ' + password);
                 loadTeachers();
             } catch (error) {
                 alert('Error: ' + error.message);
@@ -867,24 +971,18 @@
             });
         }
         
-        // UPDATED: Delete teacher from both Authentication and Database
         window.deleteTeacher = async function(id) {
-            if (!confirm('Delete this teacher? This will remove their login access.')) {
+            if (!confirm('Teacher ko delete karna hai?')) {
                 return;
             }
             
             try {
-                // Get teacher email first
                 const teacherRef = ref(db, 'teachers/' + id);
                 const snapshot = await get(teacherRef);
                 
                 if (snapshot.exists()) {
-                    const teacherEmail = snapshot.val().email;
-                    
-                    // Remove from database
                     await remove(teacherRef);
-                    
-                    alert('Teacher removed from database. Note: Authentication account needs to be removed manually from Firebase Console > Authentication > Users');
+                    alert('Teacher database se remove ho gaya');
                     loadTeachers();
                 }
             } catch (error) {

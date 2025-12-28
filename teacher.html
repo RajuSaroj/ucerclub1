@@ -63,6 +63,41 @@
             transform: translateY(-2px);
         }
         
+        .forgot-password-link {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        
+        .forgot-password-link a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-to-login {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-to-login a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--success);
+        }
+        
         .dashboard-container {
             background: #f3f4f6;
             min-height: 100vh;
@@ -175,17 +210,44 @@
                 <h3>Teacher Login</h3>
                 <p class="text-muted">UCER Faculty Portal</p>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" id="teacherEmail" class="form-control" placeholder="teacher@ucer.edu.in">
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="teacherEmail" class="form-control" placeholder="teacher@ucer.edu.in">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="teacherPassword" class="form-control" placeholder="Enter password">
+                </div>
+                <div class="forgot-password-link">
+                    <a href="#" onclick="showForgotPassword(); return false;">Forgot Password?</a>
+                </div>
+                <button class="btn btn-primary" onclick="teacherLogin()">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                <input type="password" id="teacherPassword" class="form-control" placeholder="Enter password">
+            
+            <!-- Forgot Password Form -->
+            <div id="forgotPasswordForm" class="hidden">
+                <div id="successMessage" class="success-message hidden">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Password reset email bhej di gayi hai!</strong>
+                    <p class="mb-0 mt-2">Apni email check karein aur link pe click karke password reset karein.</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="resetEmail" class="form-control" placeholder="Enter your email">
+                    <small class="text-muted">Aapko password reset link email par milega</small>
+                </div>
+                <button class="btn btn-primary" onclick="sendPasswordReset()">
+                    <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                </button>
+                <div class="back-to-login">
+                    <a href="#" onclick="showLogin(); return false;"><i class="fas fa-arrow-left me-2"></i>Back to Login</a>
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="teacherLogin()">
-                <i class="fas fa-sign-in-alt me-2"></i>Login
-            </button>
         </div>
     </div>
 
@@ -381,7 +443,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
         
         const firebaseConfig = {
@@ -402,12 +464,57 @@
         let currentStudentUid = null;
         let categoriesData = {};
         
+        // Forgot Password Functions
+        window.showForgotPassword = function() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('forgotPasswordForm').classList.remove('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+        };
+        
+        window.showLogin = function() {
+            document.getElementById('forgotPasswordForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        };
+        
+        window.sendPasswordReset = async function() {
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!email) {
+                alert('Email address enter karein!');
+                return;
+            }
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                document.getElementById('successMessage').classList.remove('hidden');
+                document.getElementById('resetEmail').value = '';
+                
+                setTimeout(() => {
+                    showLogin();
+                }, 10000);
+                
+            } catch (error) {
+                let errorMsg = 'Error: ';
+                if (error.code === 'auth/user-not-found') {
+                    errorMsg = 'Ye email registered nahi hai!';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Invalid email address!';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg = 'Bahut zyada requests! Thodi der baad try karein.';
+                } else {
+                    errorMsg += error.message;
+                }
+                alert(errorMsg);
+            }
+        };
+        
+        // Teacher Login
         window.teacherLogin = async function() {
-            const email = document.getElementById('teacherEmail').value;
+            const email = document.getElementById('teacherEmail').value.trim();
             const password = document.getElementById('teacherPassword').value;
             
             if (!email || !password) {
-                alert('Please enter credentials');
+                alert('Email aur password enter karein!');
                 return;
             }
             
@@ -422,11 +529,19 @@
                     document.getElementById('teacherDashboard').classList.remove('hidden');
                     loadTeacherDashboard();
                 } else {
-                    alert('Not authorized as teacher');
+                    alert('Teacher account nahi hai!');
                     await signOut(auth);
                 }
             } catch (error) {
-                alert('Login failed: ' + error.message);
+                let errorMsg = 'Login failed: ';
+                if (error.code === 'auth/invalid-credential') {
+                    errorMsg = 'Galat email ya password!';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMsg = 'User nahi mila!';
+                } else {
+                    errorMsg += error.message;
+                }
+                alert(errorMsg);
             }
         };
         
@@ -489,7 +604,7 @@
         window.searchStudent = async function() {
             const searchTerm = document.getElementById('searchStudent').value.trim().toLowerCase();
             if (!searchTerm) {
-                alert('Please enter email or roll number');
+                alert('Email ya roll number enter karein!');
                 return;
             }
             
@@ -513,7 +628,7 @@
                 }
                 
                 if (!found) {
-                    alert('Student not found');
+                    alert('Student nahi mila!');
                 }
             }
         };
@@ -567,7 +682,7 @@
         
         window.updateBasicInfo = async function() {
             if (!currentStudentUid) {
-                alert('Please search for a student first');
+                alert('Pehle student search karein!');
                 return;
             }
             
@@ -580,7 +695,7 @@
                 if (feeStatus) updates.feeStatus = feeStatus;
                 
                 await update(ref(db, 'studentData/' + currentStudentUid), updates);
-                alert('Basic information updated successfully!');
+                alert('Information successfully update ho gayi!');
             } catch (error) {
                 alert('Error: ' + error.message);
             }
@@ -588,7 +703,7 @@
         
         window.updateCategoryScores = async function() {
             if (!currentStudentUid) {
-                alert('Please search for a student first');
+                alert('Pehle student search karein!');
                 return;
             }
             
@@ -602,7 +717,7 @@
             
             try {
                 await update(ref(db, 'studentData/' + currentStudentUid), { categories });
-                alert('Category scores updated successfully!');
+                alert('Category scores successfully update ho gaye!');
             } catch (error) {
                 alert('Error: ' + error.message);
             }
@@ -789,8 +904,10 @@
         };
         
         window.logout = async function() {
-            await signOut(auth);
-            location.reload();
+            if (confirm('Logout karna hai?')) {
+                await signOut(auth);
+                location.reload();
+            }
         };
     </script>
 </body>

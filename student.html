@@ -81,6 +81,41 @@
             box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
         
+        .forgot-password-link {
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        
+        .forgot-password-link a {
+            color: var(--light-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .forgot-password-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-to-login {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-to-login a {
+            color: var(--light-blue);
+            text-decoration: none;
+        }
+        
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--success);
+        }
+        
         .dashboard-container {
             background: #f3f4f6;
             min-height: 100vh;
@@ -245,12 +280,35 @@
                         <label class="form-label">Password</label>
                         <input type="password" id="loginPassword" class="form-control" placeholder="Enter password">
                     </div>
+                    <div class="forgot-password-link">
+                        <a href="#" onclick="showForgotPassword(); return false;">Forgot Password?</a>
+                    </div>
                     <button class="btn btn-auth" onclick="loginUser()">
                         <i class="fas fa-sign-in-alt me-2"></i>Login
                     </button>
                     <p class="text-center mt-3">
                         Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a>
                     </p>
+                </div>
+                
+                <!-- Forgot Password Form -->
+                <div id="forgotPasswordForm" class="hidden">
+                    <div id="successMessage" class="success-message hidden">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Password reset email bhej di gayi hai!</strong>
+                        <p class="mb-0 mt-2">Apni email check karein aur link pe click karke password reset karein.</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="resetEmail" class="form-control" placeholder="Enter your email">
+                        <small class="text-muted">Aapko password reset link email par milega</small>
+                    </div>
+                    <button class="btn btn-auth" onclick="sendPasswordReset()">
+                        <i class="fas fa-paper-plane me-2"></i>Send Reset Link
+                    </button>
+                    <div class="back-to-login">
+                        <a href="#" onclick="showLogin(); return false;"><i class="fas fa-arrow-left me-2"></i>Back to Login</a>
+                    </div>
                 </div>
                 
                 <!-- Signup Form -->
@@ -415,7 +473,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
         
         const firebaseConfig = {
@@ -434,14 +492,56 @@
         
         let currentUserData = null;
         
-        window.showSignup = function() {
+        // Forgot Password Functions
+        window.showForgotPassword = function() {
             document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('forgotPasswordForm').classList.remove('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
         };
         
         window.showLogin = function() {
+            document.getElementById('forgotPasswordForm').classList.add('hidden');
             document.getElementById('signupForm').classList.add('hidden');
             document.getElementById('loginForm').classList.remove('hidden');
+        };
+        
+        window.sendPasswordReset = async function() {
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!email) {
+                alert('Email address enter karein!');
+                return;
+            }
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                document.getElementById('successMessage').classList.remove('hidden');
+                document.getElementById('resetEmail').value = '';
+                
+                setTimeout(() => {
+                    showLogin();
+                }, 10000);
+                
+            } catch (error) {
+                let errorMsg = 'Error: ';
+                if (error.code === 'auth/user-not-found') {
+                    errorMsg = 'Ye email registered nahi hai!';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMsg = 'Invalid email address!';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMsg = 'Bahut zyada requests! Thodi der baad try karein.';
+                } else {
+                    errorMsg += error.message;
+                }
+                alert(errorMsg);
+            }
+        };
+        
+        window.showSignup = function() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('forgotPasswordForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
         };
         
         window.signupUser = async function() {
@@ -528,8 +628,8 @@
                 console.error('Login error:', error);
                 
                 let errorMsg = 'Login failed: ';
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
-                    errorMsg = 'Galat email ya password!';
+                if (error.code === 'invalid-credential' || error.code === 'wrong-password') {
+                    errorMsg = 'Sorry baby your credential is wrong! Please try again.';
                 } else if (error.code === 'auth/user-not-found') {
                     errorMsg = 'User nahi mila. Pehle signup karein.';
                 } else if (error.code === 'auth/invalid-email') {
